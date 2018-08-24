@@ -1,0 +1,3 @@
+SCORE = 0
+ACCURACY = 1
+COMBO = 2
