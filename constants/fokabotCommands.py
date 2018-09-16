@@ -1124,8 +1124,60 @@ def rtx(fro, chan, message):
 	userToken.enqueue(serverPackets.rtx(message))
 	return ":ok_hand:"
 
+def editMap(fro, chan, message): # Edit maps ranking status ingame. // Added by cmyui :)
+	messages = [m.lower() for m in message]
+	rankType = message[0]
+	mapType = message[1]
+	mapID = message[2]
 
+	# Get persons username & ID
+	userID = userUtils.getID(fro)
+	name = userUtils.getUsername(userID)
 
+	# Figure out what to do
+	if rankType == 'rank':
+		rankTypeID = 2
+		freezeStatus = 1
+	elif rankType == 'love':
+		rankTypeID = 5
+		freezeStatus = 1
+	elif rankType == 'unrank':
+		rankTypeID = 0
+		freezeStatus = 0
+
+	# Grab beatmapData from db
+	beatmapData = glob.db.fetch("SELECT * FROM beatmaps WHERE beatmap_id = {} LIMIT 1".format(mapID))
+
+	if mapType == 'set':
+		glob.db.execute("UPDATE beatmaps SET ranked = {}, ranked_status_freezed = {} WHERE beatmapset_id = {} LIMIT 100".format(rankTypeID, freezeStatus, beatmapData["beatmapset_id"]))
+		if freezeStatus == 1:
+				glob.db.execute("""UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps
+					WHERE beatmapset_id = {} LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3""".format(beatmapData["beatmapset_id"]))
+	elif mapType == 'map':
+		glob.db.execute("UPDATE beatmaps SET ranked = {}, ranked_status_freezed = {} WHERE beatmap_id = {} LIMIT 1".format(rankTypeID, freezeStatus, mapID))
+		if freezeStatus == 1:
+				glob.db.execute("""UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps
+					WHERE beatmap_id = {} LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3""".format(beatmapData["beatmap_id"]))
+	else:
+		return "Please specify whether it is a set/map. eg: '!map unrank/rank/love set/map 123456'"
+	
+	# Announce / Log to AP logs when ranked status is changed
+	if rankType == "love":
+		log.rap(userID, "has {}d beatmap ({}): {} ({}).".format(rankType, mapType, beatmapData["song_name"], mapID), True)
+		if mapType == 'set':
+			msg = "{} has loved beatmap set: [https://osu.ppy.sh/s/{} {}]".format(name, beatmapData["beatmapset_id"], beatmapData["song_name"])
+		else:
+			msg = "{} has loved beatmap: [https://osu.ppy.sh/s/{} {}]".format(name, mapID, beatmapData["song_name"])
+	else:
+		log.rap(userID, "has {}ed beatmap ({}): {} ({}).".format(rankType, mapType, beatmapData["song_name"], mapID), True)
+		if mapType == 'set':
+			msg = "{} has {}ed beatmap set: [https://osu.ppy.sh/s/{} {}]".format(name, rankType, beatmapData["beatmapset_id"], beatmapData["song_name"])
+		else:
+			msg = "{} has {}ed beatmap: [https://osu.ppy.sh/s/{} {}]".format(name, rankType, mapID, beatmapData["song_name"])
+
+	embed.post()
+	chat.sendMessage(glob.BOT_NAME, "#nowranked", msg)
+	return msg
 
 """
 Commands list
@@ -1155,6 +1207,12 @@ commands = [
 		#"syntax": "<question>",
 		#"callback": ask
 	#}, {
+	 {
+		"trigger": "!map",
+		"syntax": "<rank/unrank/love> <set/map> <ID>",
+		"privileges": privileges.ADMIN_MANAGE_BEATMAPS,
+		"callback": editMap
+	},
 	{
 		"trigger": "!mm00",
 		"callback": mm00
