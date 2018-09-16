@@ -1175,7 +1175,6 @@ def editMap(fro, chan, message): # Edit maps ranking status ingame. // Added by 
 		else:
 			msg = "{} has {}ed beatmap: [https://osu.ppy.sh/s/{} {}]".format(name, rankType, mapID, beatmapData["song_name"])
 
-	embed.post()
 	chat.sendMessage(glob.BOT_NAME, "#nowranked", msg)
 	return msg
 
