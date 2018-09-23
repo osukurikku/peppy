@@ -1,5 +1,6 @@
 {
     "support-email": "support@verge.moe",
+    "type": "debug",
     "faq":
     {
         "rules": "Please make sure to check (Verge's rules)[http://osu.verge.moe/?p=23].",

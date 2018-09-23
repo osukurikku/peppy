@@ -142,8 +142,13 @@ def handle(tornadoRequest):
 		if responseToken.admin:
 			responseToken.enqueue(serverPackets.notification("Thank you for being an admin on Verge, " + username))
 		else:
-			responseToken.enqueue(serverPackets.notification("Welcome to Verge, " + username))
-
+			if glob.conf.extra["type"] == "debug":
+				responseToken.enqueue(serverPackets.notification("Welcome to Verge!Debug, " + username))
+			elif glob.conf.extra["type"] == "relax":
+				responseToken.enqueue(serverPackets.notification("Welcome to Verge!Relax, " + username))
+			else:
+				responseToken.enqueue(serverPackets.notification("Welcome to Verge, " + username))
+				
 		# Maintenance check
 		if glob.banchoConf.config["banchoMaintenance"]:
 			if not userGMT:
