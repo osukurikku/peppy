@@ -139,8 +139,10 @@ def handle(tornadoRequest):
 			raise exceptions.banchoRestartingException()
 
 		# Send login notification before maintenance message
-		if glob.banchoConf.config["loginNotification"] != "":
-			responseToken.enqueue(serverPackets.notification(glob.banchoConf.config["loginNotification"]))
+		if responseToken.admin:
+			responseToken.enqueue(serverPackets.notification("Thank you for being an admin on Verge, " + username))
+		else:
+			responseToken.enqueue(serverPackets.notification("Welcome to Verge, " + username))
 
 		# Maintenance check
 		if glob.banchoConf.config["banchoMaintenance"]:
