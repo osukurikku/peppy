@@ -2,7 +2,7 @@
 from common import generalUtils
 from constants import serverPackets
 from objects import glob
-
+from common.log import logUtils as log
 
 class banchoConfig:
 	"""
