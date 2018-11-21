@@ -140,14 +140,14 @@ def handle(tornadoRequest):
 
 		# Send login notification before maintenance message
 		if responseToken.admin:
-			responseToken.enqueue(serverPackets.notification("Thank you for being an admin on Verge, " + username))
+			responseToken.enqueue(serverPackets.notification("Thank you for being an admin on Kotorikku, " + username))
 		else:
 			if glob.conf.extra["type"] == "debug":
-				responseToken.enqueue(serverPackets.notification("Welcome to Verge!Debug, " + username))
+				responseToken.enqueue(serverPackets.notification("Welcome to Kotorikku!Debug, " + username))
 			elif glob.conf.extra["type"] == "relax":
-				responseToken.enqueue(serverPackets.notification("Welcome to Verge!Relax, " + username))
+				responseToken.enqueue(serverPackets.notification("Welcome to Kotorikku!Relax, " + username))
 			else:
-				responseToken.enqueue(serverPackets.notification("Welcome to Verge, " + username))
+				responseToken.enqueue(serverPackets.notification("Welcome to Kotorikku, " + username))
 				
 		# Maintenance check
 		if glob.banchoConf.config["banchoMaintenance"]:
