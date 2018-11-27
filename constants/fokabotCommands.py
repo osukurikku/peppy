@@ -1239,7 +1239,7 @@ commands = [
 		"privileges": privileges.ADMIN_KICK_USERS,
 		"callback": kick
 	}, {
-		"trigger": "!bot reconnect",
+		"trigger": "!crystal reconnect",
 		"privileges": privileges.ADMIN_MANAGE_SERVERS,
 		"callback": fokabotReconnect
 	}, {

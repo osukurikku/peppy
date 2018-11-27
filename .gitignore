@@ -8,3 +8,5 @@ redistest.py
 *.c
 *.so
 .pyenv
+.idea/*
+*.iml
