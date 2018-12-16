@@ -1,16 +1,16 @@
 {
-    "support-email": "support@verge.moe",
-    "type": "debug",
+    "support-email": "support@kotorikku.ru",
+    "type": "release",
     "faq":
     {
-        "rules": "Please make sure to check (Verge's rules)[http://osu.verge.moe/?p=23].",
+        "rules": "Please make sure to check (Verge's rules)[https://kotorikku.ru/?p=23].",
         "swearing": "Please don't abuse swearing",
         "spam": "Please don't spam",
         "offend": "Verge don't offend other players",
-        "github": "(Verge's Github page!)[https://github.com/osuverge]",
-        "discord": "(Join Verge's Discord!)[https://discord.gg/0rJcZruIsA6rXuIx]",
-        "changelog": "Check the (changelog)[https://verge.moe/index.php?p=17] !",
-        "status": "Check the server status (here!)[https://verge.moe/index.php?p=27]",
+        "github": "(Kotorikku's git page)[https://git.dou-mou-about.me/osukotorikku]",
+        "discord": "(Join Kotorikku's Discord!)[https://discord.gg/5uA3c76]",
+        "changelog": "unavailable now",
+        "status": "unavailable now",
         "english": "Please keep this channel in english.",
         "topic": "Can you please drop the topic and talk about something else?",
         "lines": "Please try to keep your sentences on a single line to avoid getting silenced."
