@@ -1,0 +1,8 @@
+language: python
+python:
+  - "3.6"
+  - "3.6-dev"
+install:
+  - pip3.6 install -r requirements.txt
+script:
+  - python3.6 setup.py build_ext --inplace
