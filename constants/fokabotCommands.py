@@ -20,6 +20,8 @@ from helpers import systemHelper
 from objects import fokabot
 from objects import glob
 
+import discord_hooks
+
 """
 Commands callbacks
 
@@ -1225,6 +1227,21 @@ def editMap(fro, chan, message):  # Edit maps ranking status ingame. // Added by
                                                                                   beatmapData["song_name"])
         else:
             msg = "{} has loved beatmap: [https://osu.ppy.sh/s/{} {}]".format(name, mapID, beatmapData["song_name"])
+
+        glob.db.execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = {} LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 2".format(beatmapData["beatmap_id"]))
+    elif rankType == "rank":
+        log.rap(userID, "has {}ed beatmap ({}): {} ({}).".format(rankType, mapType, beatmapData["song_name"], mapID),
+                True)
+        if mapType == 'set':
+            msg = "{} has {}ed beatmap set: [https://osu.ppy.sh/s/{} {}]".format(name, rankType,
+                                                                                 beatmapData["beatmapset_id"],
+                                                                                 beatmapData["song_name"])
+        else:
+            msg = "{} has {}ed beatmap: [https://osu.ppy.sh/s/{} {}]".format(name, rankType, mapID,
+                                                                             beatmapData["song_name"])
+        glob.db.execute(
+            "UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = {} LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 2".format(
+                beatmapData["beatmap_id"]))
     else:
         log.rap(userID, "has {}ed beatmap ({}): {} ({}).".format(rankType, mapType, beatmapData["song_name"], mapID),
                 True)
@@ -1235,6 +1252,16 @@ def editMap(fro, chan, message):  # Edit maps ranking status ingame. // Added by
         else:
             msg = "{} has {}ed beatmap: [https://osu.ppy.sh/s/{} {}]".format(name, rankType, mapID,
                                                                              beatmapData["song_name"])
+
+            glob.db.execute(
+                "UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = {} LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 2".format(
+                    beatmapData["beatmap_id"]))
+
+    embed = discord_hooks.Webhook(glob.conf.config["discord"]["webhook_rank"], color=0x35b75c)
+    embed.set_author(name=fro.encode().decode("ASCII", "ignore"))
+    embed.set_desc(msg),
+    embed.set_image('https://assets.ppy.sh/beatmaps/{}/covers/cover.jpg'.format(mapID))
+    embed.post()
 
     chat.sendMessage(glob.BOT_NAME, "#nowranked", msg)
     return msg
