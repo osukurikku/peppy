@@ -239,8 +239,8 @@ if __name__ == "__main__":
 						datadogClient.periodicCheck("online_users", lambda: len(glob.tokens.tokens)),
 						datadogClient.periodicCheck("multiplayer_matches", lambda: len(glob.matches.matches)),
 
-						#datadogClient.periodicCheck("ram_clients", lambda: generalUtils.getTotalSize(glob.tokens)),
-						#datadogClient.periodicCheck("ram_matches", lambda: generalUtils.getTotalSize(glob.matches)),
+						datadogClient.periodicCheck("ram_clients", lambda: generalUtils.getTotalSize(glob.tokens)),
+						datadogClient.periodicCheck("ram_matches", lambda: generalUtils.getTotalSize(glob.matches)),
 						#datadogClient.periodicCheck("ram_channels", lambda: generalUtils.getTotalSize(glob.channels)),
 						#datadogClient.periodicCheck("ram_file_buffers", lambda: generalUtils.getTotalSize(glob.fileBuffers)),
 						#datadogClient.periodicCheck("ram_file_locks", lambda: generalUtils.getTotalSize(glob.fLocks)),
