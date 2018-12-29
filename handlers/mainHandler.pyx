@@ -262,5 +262,5 @@ class handler(requestsManager.asyncRequestHandler):
 		html += "             \\\"\"\"\"\"\"\"\"\"\"\"\"\"\"/<br>"
 		html += "              \\ . ..  .. . /<br>"
 		html += "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^<br>"
-		html += "</marquee><br><strike>reverse engineering a protocol impossible to reverse engineer since always</strike><br>we are actually reverse engineering bancho successfully. for the third time.<br><br><i>&copy; Ripple and Kotorikku team, 2016</i></pre></body></html>"
+		html += "</marquee><br><strike>reverse engineering a protocol impossible to reverse engineer since always</strike><br>we are actually reverse engineering bancho successfully. for the third time.<br><br><i>&copy; Ripple and Katori team, 2019</i></pre></body></html>"
 		self.write(html)

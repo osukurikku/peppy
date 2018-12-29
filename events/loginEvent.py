@@ -140,14 +140,14 @@ def handle(tornadoRequest):
 
 		# Send login notification before maintenance message
 		if responseToken.admin:
-			responseToken.enqueue(serverPackets.notification("Thank you for being an admin on Kotorikku, " + username))
+			responseToken.enqueue(serverPackets.notification("Thank you for being an admin on Katori, " + username))
 		else:
 			if glob.conf.extra["type"] == "debug":
-				responseToken.enqueue(serverPackets.notification("Welcome to Kotorikku!Debug, " + username))
+				responseToken.enqueue(serverPackets.notification("Welcome to Katori!Debug, " + username))
 			elif glob.conf.extra["type"] == "relax":
-				responseToken.enqueue(serverPackets.notification("Welcome to Kotorikku!Relax, " + username))
+				responseToken.enqueue(serverPackets.notification("Welcome to Katori!Relax, " + username))
 			else:
-				responseToken.enqueue(serverPackets.notification("Welcome to Kotorikku, " + username))
+				responseToken.enqueue(serverPackets.notification("Welcome to Katori, " + username))
 				
 		# Maintenance check
 		if glob.banchoConf.config["banchoMaintenance"]:
