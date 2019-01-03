@@ -5,22 +5,22 @@ import threading
 import time
 
 import requests
+
+import discord_hooks
+from common import generalUtils
 from common.constants import gameModes
 from common.constants import mods
 from common.constants import privileges
+from constants import countries
 from common.log import logUtils as log
 from common.ripple import userUtils
 from common.web import cheesegull
-
-from common import generalUtils
 from constants import exceptions, slotStatuses, matchModModes, matchTeams, matchTeamTypes
 from constants import serverPackets
 from helpers import chatHelper as chat
-from helpers import systemHelper
+from helpers import systemHelper, humanize
 from objects import fokabot
 from objects import glob
-
-import discord_hooks
 
 """
 Commands callbacks
@@ -1130,7 +1130,8 @@ def multiplayer(fro, chan, message):
             raise exceptions.invalidArgumentsException("Invalid subcommand")
         return subcommands[requestedSubcommand]()
     except (
-    exceptions.invalidArgumentsException, exceptions.userNotFoundException, exceptions.invalidUserException) as e:
+            exceptions.invalidArgumentsException, exceptions.userNotFoundException,
+            exceptions.invalidUserException) as e:
         return str(e)
     except exceptions.wrongChannelException:
         return "This command only works in multiplayer chat channels"
@@ -1228,7 +1229,9 @@ def editMap(fro, chan, message):  # Edit maps ranking status ingame. // Added by
         else:
             msg = "{} has loved beatmap: [https://osu.ppy.sh/s/{} {}]".format(name, mapID, beatmapData["song_name"])
 
-        glob.db.execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = {} LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 2".format(beatmapData["beatmap_id"]))
+        glob.db.execute(
+            "UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = {} LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 2".format(
+                beatmapData["beatmap_id"]))
     elif rankType == "rank":
         log.rap(userID, "has {}ed beatmap ({}): {} ({}).".format(rankType, mapType, beatmapData["song_name"], mapID),
                 True)
@@ -1267,273 +1270,56 @@ def editMap(fro, chan, message):  # Edit maps ranking status ingame. // Added by
     return msg
 
 
-contries = {
-    'XX': 'Unknowed',
-    'BD': 'Bangladesh',
-    'BE': 'Belgium',
-    'BF': 'Burkina Faso',
-    'BG': 'Bulgaria',
-    'BA': 'Bosnia and Herzegovina',
-    'BB': 'Barbados',
-    'WF': 'Wallis and Futuna',
-    'BL': 'Saint Barthelemy',
-    'BM': 'Bermuda',
-    'BN': 'Brunei',
-    'BO': 'Bolivia',
-    'BH': 'Bahrain',
-    'BI': 'Burundi',
-    'BJ': 'Benin',
-    'BT': 'Bhutan',
-    'JM': 'Jamaica',
-    'BV': 'Bouvet Island',
-    'BW': 'Botswana',
-    'WS': 'Samoa',
-    'BQ': 'Bonaire, Saint Eustatius and Saba',
-    'BR': 'Brazil',
-    'BS': 'Bahamas',
-    'JE': 'Jersey',
-    'BY': 'Belarus',
-    'BZ': 'Belize',
-    'RU': 'Russia',
-    'RW': 'Rwanda',
-    'RS': 'Serbia',
-    'TL': 'East Timor',
-    'RE': 'Reunion',
-    'TM': 'Turkmenistan',
-    'TJ': 'Tajikistan',
-    'RO': 'Romania',
-    'TK': 'Tokelau',
-    'GW': 'Guinea-Bissau',
-    'GU': 'Guam',
-    'GT': 'Guatemala',
-    'GS': 'South Georgia and the South Sandwich Islands',
-    'GR': 'Greece',
-    'GQ': 'Equatorial Guinea',
-    'GP': 'Guadeloupe',
-    'JP': 'Japan',
-    'GY': 'Guyana',
-    'GG': 'Guernsey',
-    'GF': 'French Guiana',
-    'GE': 'Georgia',
-    'GD': 'Grenada',
-    'GB': 'United Kingdom',
-    'GA': 'Gabon',
-    'SV': 'El Salvador',
-    'GN': 'Guinea',
-    'GM': 'Gambia',
-    'GL': 'Greenland',
-    'GI': 'Gibraltar',
-    'GH': 'Ghana',
-    'OM': 'Oman',
-    'TN': 'Tunisia',
-    'JO': 'Jordan',
-    'HR': 'Croatia',
-    'HT': 'Haiti',
-    'HU': 'Hungary',
-    'HK': 'Hong Kong',
-    'HN': 'Honduras',
-    'HM': 'Heard Island and McDonald Islands',
-    'VE': 'Venezuela',
-    'PR': 'Puerto Rico',
-    'PS': 'Palestinian Territory',
-    'PW': 'Palau',
-    'PT': 'Portugal',
-    'SJ': 'Svalbard and Jan Mayen',
-    'PY': 'Paraguay',
-    'IQ': 'Iraq',
-    'PA': 'Panama',
-    'PF': 'French Polynesia',
-    'PG': 'Papua New Guinea',
-    'PE': 'Peru',
-    'PK': 'Pakistan',
-    'PH': 'Philippines',
-    'PN': 'Pitcairn',
-    'PL': 'Poland',
-    'PM': 'Saint Pierre and Miquelon',
-    'ZM': 'Zambia',
-    'EH': 'Western Sahara',
-    'EE': 'Estonia',
-    'EG': 'Egypt',
-    'ZA': 'South Africa',
-    'EC': 'Ecuador',
-    'IT': 'Italy',
-    'VN': 'Vietnam',
-    'SB': 'Solomon Islands',
-    'ET': 'Ethiopia',
-    'SO': 'Somalia',
-    'ZW': 'Zimbabwe',
-    'SA': 'Saudi Arabia',
-    'ES': 'Spain',
-    'ER': 'Eritrea',
-    'ME': 'Montenegro',
-    'MD': 'Moldova',
-    'MG': 'Madagascar',
-    'MF': 'Saint Martin',
-    'MA': 'Morocco',
-    'MC': 'Monaco',
-    'UZ': 'Uzbekistan',
-    'MM': 'Myanmar',
-    'ML': 'Mali',
-    'MO': 'Macao',
-    'MN': 'Mongolia',
-    'MH': 'Marshall Islands',
-    'MK': 'Macedonia',
-    'MU': 'Mauritius',
-    'MT': 'Malta',
-    'MW': 'Malawi',
-    'MV': 'Maldives',
-    'MQ': 'Martinique',
-    'MP': 'Northern Mariana Islands',
-    'MS': 'Montserrat',
-    'MR': 'Mauritania',
-    'IM': 'Isle of Man',
-    'UG': 'Uganda',
-    'TZ': 'Tanzania',
-    'MY': 'Malaysia',
-    'MX': 'Mexico',
-    'IL': 'Israel',
-    'FR': 'France',
-    'IO': 'British Indian Ocean Territory',
-    'SH': 'Saint Helena',
-    'FI': 'Finland',
-    'FJ': 'Fiji',
-    'FK': 'Falkland Islands',
-    'FM': 'Micronesia',
-    'FO': 'Faroe Islands',
-    'NI': 'Nicaragua',
-    'NL': 'Netherlands',
-    'NO': 'Norway',
-    'NA': 'Namibia',
-    'VU': 'Vanuatu',
-    'NC': 'New Caledonia',
-    'NE': 'Niger',
-    'NF': 'Norfolk Island',
-    'NG': 'Nigeria',
-    'NZ': 'New Zealand',
-    'NP': 'Nepal',
-    'NR': 'Nauru',
-    'NU': 'Niue',
-    'CK': 'Cook Islands',
-    'XK': 'Kosovo',
-    'CI': 'Ivory Coast',
-    'CH': 'Switzerland',
-    'CO': 'Colombia',
-    'CN': 'China',
-    'CM': 'Cameroon',
-    'CL': 'Chile',
-    'CC': 'Cocos Islands',
-    'CA': 'Canada',
-    'CG': 'Republic of the Congo',
-    'CF': 'Central African Republic',
-    'CD': 'Democratic Republic of the Congo',
-    'CZ': 'Czech Republic',
-    'CY': 'Cyprus',
-    'CX': 'Christmas Island',
-    'CR': 'Costa Rica',
-    'CW': 'Curacao',
-    'CV': 'Cape Verde',
-    'CU': 'Cuba',
-    'SZ': 'Swaziland',
-    'SY': 'Syria',
-    'SX': 'Sint Maarten',
-    'KG': 'Kyrgyzstan',
-    'KE': 'Kenya',
-    'SS': 'South Sudan',
-    'SR': 'Suriname',
-    'KI': 'Kiribati',
-    'KH': 'Cambodia',
-    'KN': 'Saint Kitts and Nevis',
-    'KM': 'Comoros',
-    'ST': 'Sao Tome and Principe',
-    'SK': 'Slovakia',
-    'KR': 'South Korea',
-    'SI': 'Slovenia',
-    'KP': 'North Korea',
-    'KW': 'Kuwait',
-    'SN': 'Senegal',
-    'SM': 'San Marino',
-    'SL': 'Sierra Leone',
-    'SC': 'Seychelles',
-    'KZ': 'Kazakhstan',
-    'KY': 'Cayman Islands',
-    'SG': 'Singapore',
-    'SE': 'Sweden',
-    'SD': 'Sudan',
-    'DO': 'Dominican Republic',
-    'DM': 'Dominica',
-    'DJ': 'Djibouti',
-    'DK': 'Denmark',
-    'VG': 'British Virgin Islands',
-    'DE': 'Germany',
-    'YE': 'Yemen',
-    'DZ': 'Algeria',
-    'US': 'United States',
-    'UY': 'Uruguay',
-    'YT': 'Mayotte',
-    'UM': 'United States Minor Outlying Islands',
-    'LB': 'Lebanon',
-    'LC': 'Saint Lucia',
-    'LA': 'Laos',
-    'TV': 'Tuvalu',
-    'TW': 'Taiwan',
-    'TT': 'Trinidad and Tobago',
-    'TR': 'Turkey',
-    'LK': 'Sri Lanka',
-    'LI': 'Liechtenstein',
-    'LV': 'Latvia',
-    'TO': 'Tonga',
-    'LT': 'Lithuania',
-    'LU': 'Luxembourg',
-    'LR': 'Liberia',
-    'LS': 'Lesotho',
-    'TH': 'Thailand',
-    'TF': 'French Southern Territories',
-    'TG': 'Togo',
-    'TD': 'Chad',
-    'TC': 'Turks and Caicos Islands',
-    'LY': 'Libya',
-    'VA': 'Vatican',
-    'VC': 'Saint Vincent and the Grenadines',
-    'AE': 'United Arab Emirates',
-    'AD': 'Andorra',
-    'AG': 'Antigua and Barbuda',
-    'AF': 'Afghanistan',
-    'AI': 'Anguilla',
-    'VI': 'U.S. Virgin Islands',
-    'IS': 'Iceland',
-    'IR': 'Iran',
-    'AM': 'Armenia',
-    'AL': 'Albania',
-    'AO': 'Angola',
-    'AQ': 'Antarctica',
-    'AS': 'American Samoa',
-    'AR': 'Argentina',
-    'AU': 'Australia',
-    'AT': 'Austria',
-    'AW': 'Aruba',
-    'IN': 'India',
-    'AX': 'Aland Islands',
-    'AZ': 'Azerbaijan',
-    'IE': 'Ireland',
-    'ID': 'Indonesia',
-    'UA': 'Ukraine',
-    'QA': 'Qatar',
-    'MZ': 'Mozambique'
-}
-
-
 def editFlag(fro, chan, message):
     user_id = userUtils.getID(fro)
     args = [m.lower() for m in message]
     if len(args) < 1:
         return "Plz enter flags"
 
-    flag = args[0].upper()
-    if not flag in contries:
+    flag = countries.getCountry(args[0].upper())
+    if not flag:
         return "Unknowed flag"
 
     glob.db.execute("UPDATE users_stats SET country='{}' WHERE id={}".format(flag, user_id))
     return "Your flag is changed"
+
+
+def userStats(fro, chan, message):
+    args = [m.lower() for m in message]
+    nickname = None
+    mode = 0
+    if len(args) < 1:
+        nickname = fro
+    else:
+        nickname = args[0].lower()
+
+    if len(args)>1 and args[1].isdigit():
+        mode = int(args[1])
+
+    if mode > 3:
+        return "mode is uncorrect"
+
+    user_id = userUtils.getID(nickname)
+    if not user_id:
+        return "User not found!"
+
+    mode_str = gameModes.getGameModeForDB(mode)
+    user = userUtils.getUserStats(user_id, mode)
+
+    acc = "{0:.2f}%".format(user['accuracy'])
+    return (
+        f"User: {nickname}\n"
+        f"ID: {user_id}\n"
+        "---------------------\n"
+        f"Stats for {mode_str} #{user['gameRank']}\n"
+        f"Ranked score: {humanize(user['rankedScore'])}\n"
+        f"Accuracy: {acc}\n"
+        f"Play count: {humanize(user['playcount'])}\n"
+        f"Total score: {humanize(user['totalScore'])}\n"
+        f"PP count: {humanize(user['pp'])}"
+    )
+
+
 
 """
 Commands list
@@ -1690,11 +1476,15 @@ commands = [
         "privileges": privileges.ADMIN_MANAGE_USERS,
         "syntax": "<username> <message>",
         "callback": rtx
-    },{
+    }, {
         "trigger": "!flag",
         "privileges": privileges.USER_DONOR,
         "syntax": "<flag>",
         "callback": editFlag
+    }, {
+        "trigger": "!stats",
+        "syntax": "<username>",
+        "callback": userStats
     }
     #
     #	"trigger": "!acc",

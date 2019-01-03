@@ -5,6 +5,7 @@ import threading
 import time
 
 from common.log import logUtils as log
+from common.ripple import userUtils
 from constants import dataTypes
 from constants import matchModModes
 from constants import matchScoringTypes
@@ -12,6 +13,7 @@ from constants import matchTeamTypes
 from constants import matchTeams
 from constants import serverPackets
 from constants import slotStatuses
+from common.constants import gameModes
 from helpers import chatHelper as chat
 from objects import glob
 
@@ -66,6 +68,7 @@ class match:
 		self.isStarting = False
 		self._lock = threading.Lock()
 		self.createTime = int(time.time())
+		self.games = []
 
 		# Create all slots and reset them
 		self.slots = []
@@ -413,6 +416,7 @@ class match:
 
 		# Send the info to the api
 		glob.redis.publish("api:mp_complete_match", json.dumps(infoToSend))
+		self.games.append(json.dumps(infoToSend))
 
 		# Reset inProgress
 		self.inProgress = False
