@@ -1319,7 +1319,28 @@ def userStats(fro, chan, message):
         f"PP count: {humanize(user['pp'])}"
     )
 
+def clanTop(fro, chan, message):
+    args = [m.lower() for m in message]
+    user_id = userUtils.getID(fro)
+    status = False
+    if args[0].lower() == "on":
+        status = True
+    elif args[0].lower() == "off":
+        status = False
+    else:
+        return "Enter on or off this feature. This feature replace Top Country"
 
+    userSettings = glob.redis.get("kr:user_settings:{}".format(user_id))
+    if not userSettings:
+        userSettings = {
+            'clan_top_enabled': status
+        }
+    else:
+        userSettings = json.loads(userSettings)
+        userSettings['clan_top_enabled'] = status
+
+    glob.redis.set("kr:user_settings:{}".format(user_id), json.dumps(userSettings))
+    return f"Okay, you switch this feature to: {status}. This feature replace Top Country to Top Clans"
 
 """
 Commands list
@@ -1485,6 +1506,10 @@ commands = [
         "trigger": "!stats",
         "syntax": "<username>",
         "callback": userStats
+    }, {
+        "trigger": "!clantop",
+        "syntax": "<on/off>",
+        "callback": clanTop
     }
     #
     #	"trigger": "!acc",
