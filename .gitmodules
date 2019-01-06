@@ -1,4 +1,4 @@
 [submodule "common"]
 	path = common
-        url = https://zxq.co/ripple/ripple-python-common.git
+        url = https://github.com/osukatori/python-common.git
 
