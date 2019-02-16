@@ -245,6 +245,28 @@ def ban(fro, chan, message):
     log.rap(userID, "has banned {}".format(target), True)
     return "RIP {}. You will not be missed.".format(target)
 
+def lockUser(fro, chan, message):
+    # Get parameters
+    for i in message:
+        i = i.lower()
+    target = message[0]
+
+    # Make sure the user exists
+    targetUserID = userUtils.getIDSafe(target)
+    userID = userUtils.getID(fro)
+    if not targetUserID:
+        return "{}: user not found".format(target)
+
+    # Set allowed to 0
+    userUtils.ban(targetUserID)
+
+    targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
+    if targetToken is not None:
+        targetToken.enqueue(serverPackets.banClient())
+
+    log.rap(userID, "has banned and locked {}".format(target), True)
+    return "RIP {}. You will not be missed. NEVER!".format(target)
+
 
 def unban(fro, chan, message):
     # Get parameters
@@ -1445,7 +1467,7 @@ commands = [
         "callback": report
     }, {
         "trigger": "!help",
-        "response": "Click (here)[https://ripple.moe/index.php?p=16&id=4] for the full command list"
+        "response": "Click (here)[https://kurikku.pw/index.php?p=16&id=4] for the full command list"
     },  # {
     # "trigger": "!ask",
     # "syntax": "<question>",
@@ -1527,6 +1549,11 @@ commands = [
         "syntax": "<target>",
         "privileges": privileges.ADMIN_BAN_USERS,
         "callback": unban
+    }, {
+        "trigger": "!lock",
+        "syntax": "<target>",
+        "privileges": privileges.ADMIN_BAN_USERS,
+        "callback": lockUser
     }, {
         "trigger": "!restrict",
         "syntax": "<target>",

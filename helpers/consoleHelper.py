@@ -27,8 +27,8 @@ def printServerStartHeader(asciiArt=True):
 		print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^{}".format(bcolors.ENDC))
 
 	printColored("> Welcome to pep.py osu!bancho server v{}".format(glob.VERSION), bcolors.GREEN)
-	printColored("> Made by the Ripple team, improved by verge and Katori", bcolors.GREEN)
-	printColored("> {}https://github.com/osukatori/peppy".format(bcolors.UNDERLINE), bcolors.GREEN)
+	printColored("> Made by the Ripple team, improved by verge and Kurikku", bcolors.GREEN)
+	printColored("> {}https://github.com/osukurikku/peppy".format(bcolors.UNDERLINE), bcolors.GREEN)
 	printColored("I hate u ripple ;3", bcolors.GREEN)
 	printColored("> Press CTRL+C to exit\n", bcolors.GREEN)
 

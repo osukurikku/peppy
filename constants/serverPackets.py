@@ -16,12 +16,17 @@ def forceUpdate():
 
 def loginBanned():
 	packets = packetHelper.buildPacket(packetIDs.server_userID, [[-1, dataTypes.SINT32]])
-	packets += notification("You are banned. You can appeal after one month since your ban by sending an email to {} from the email address you've used to sign up.".format(glob.conf.extra["support-email"]))
+	packets += rtx("You are banned. You can appeal after one month since your ban by sending an email to {} from the email address you've used to sign up.".format(glob.conf.extra["support-email"]))
 	return packets
 
 def loginLocked():
 	packets = packetHelper.buildPacket(packetIDs.server_userID, [[-1, dataTypes.SINT32]])
-	packets += notification("Your account is locked. You can't log in, but your profile and scores are still visible from the website. If you want to unlock your account, send an email to {} from the email address you've used to sign up.".format(glob.conf.extra["support-email"]))
+	packets += rtx("Your account is locked. You can't log in, but your profile and scores are still visible from the website. If you want to unlock your account, send an email to {} from the email address you've used to sign up.".format(glob.conf.extra["support-email"]))
+	return packets
+
+def banClient():
+	packets = packetHelper.buildPacket(-3)
+	packets += rtx("YOU HAS BEEN LOCKED! BYE PIDOR")
 	return packets
 
 def loginError():
@@ -278,4 +283,4 @@ def banchoRestart(msUntilReconnection):
 	return packetHelper.buildPacket(packetIDs.server_restart, [[msUntilReconnection, dataTypes.UINT32]])
 
 def rtx(message):
-	return packetHelper.buildPacket(0x69, [[message, dataTypes.STRING]])
+	return packetHelper.buildPacket(packetIDs.client_RTX, [[message, dataTypes.STRING]])

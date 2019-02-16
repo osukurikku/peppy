@@ -1,14 +1,14 @@
 {
-    "support-email": "support@katori.fun",
+    "support-email": "support@kurikku.pw",
     "type": "release",
     "faq":
     {
-        "rules": "Please make sure to check (Katori's rules)[https://katori.fun/?p=23].",
+        "rules": "Please make sure to check (Kurikku's rules)[https://kurikku.pw/?p=23].",
         "swearing": "Please don't abuse swearing",
         "spam": "Please don't spam",
-        "offend": "Katori don't offend other players",
-        "github": "(Katori's git page)[https://git.dou-mou-about.me/osukatori]",
-        "discord": "(Join Katori's Discord!)[https://discord.gg/5uA3c76]",
+        "offend": "Kurikku don't offend other players",
+        "github": "(Kurikku's git page)[https://git.dou-mou-about.me/osukurikku]",
+        "discord": "(Join Kurikku's Discord!)[https://discord.gg/5uA3c76]",
         "changelog": "unavailable now",
         "status": "unavailable now",
         "english": "Please keep this channel in english.",
