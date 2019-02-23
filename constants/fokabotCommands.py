@@ -242,6 +242,13 @@ def ban(fro, chan, message):
     if targetToken is not None:
         targetToken.enqueue(serverPackets.loginBanned())
 
+    # Posting to discord
+    requests.get(glob.conf.config["discord"]["krbot"]+"api/v1/submitBanOrRestrict", params={
+        'token': glob.conf.config["discord"]["krbotToken"],
+        'banned': target,
+        'type': 1,
+        'author': fro
+    })
     log.rap(userID, "has banned {}".format(target), True)
     return "RIP {}. You will not be missed.".format(target)
 
@@ -307,6 +314,12 @@ def restrict(fro, chan, message):
     if targetToken is not None:
         targetToken.setRestricted()
 
+    requests.get(glob.conf.config["discord"]["krbot"]+"api/v1/submitBanOrRestrict", params={
+        'token': glob.conf.config["discord"]["krbotToken"],
+        'banned': target,
+        'type': 0,
+        'author': fro
+    })
     log.rap(userID, "has put {} in restricted mode".format(target), True)
     return "Bye bye {}. See you later, maybe.".format(target)
 
@@ -1288,15 +1301,20 @@ def editMap(fro, chan, message):  # Edit maps ranking status ingame. // Added by
     # Get persons username & ID
     userID = userUtils.getID(fro)
     name = userUtils.getUsername(userID)
+    
+    typeBM = None
 
     # Figure out what to do
     if rankType == 'rank':
+        rankTypedStr = 'ranke'
         rankTypeID = 2
         freezeStatus = 1
     elif rankType == 'love':
+        rankTypedStr = 'love'
         rankTypeID = 5
         freezeStatus = 1
     elif rankType == 'unrank':
+        rankTypedStr = 'unranke'
         rankTypeID = 0
         freezeStatus = 0
 
@@ -1311,6 +1329,7 @@ def editMap(fro, chan, message):  # Edit maps ranking status ingame. // Added by
             glob.db.execute("""UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps
 					WHERE beatmapset_id = {} LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3""".format(
                 beatmapData["beatmapset_id"]))
+        typeBM = 'set'
     elif mapType == 'map':
         glob.db.execute(
             "UPDATE beatmaps SET ranked = {}, ranked_status_freezed = {} WHERE beatmap_id = {} LIMIT 1".format(
@@ -1319,6 +1338,7 @@ def editMap(fro, chan, message):  # Edit maps ranking status ingame. // Added by
             glob.db.execute("""UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps
 					WHERE beatmap_id = {} LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3""".format(
                 beatmapData["beatmap_id"]))
+        typeBM = 'beatmap'
     else:
         return "Please specify whether it is a set/map. eg: '!map unrank/rank/love set/map 123456'"
 
@@ -1363,11 +1383,16 @@ def editMap(fro, chan, message):  # Edit maps ranking status ingame. // Added by
                 "UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = {} LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 2".format(
                     beatmapData["beatmap_id"]))
 
-    embed = discord_hooks.Webhook(glob.conf.config["discord"]["webhook_rank"], color=0x35b75c)
-    embed.set_author(name=fro.encode().decode("ASCII", "ignore"))
-    embed.set_desc(msg),
-    embed.set_image('https://assets.ppy.sh/beatmaps/{}/covers/cover.jpg'.format(mapID))
-    embed.post()
+    need_params = {
+        'token': glob.conf.config["discord"]["krbotToken"],
+        'poster': fro,
+        'type': rankTypedStr
+    }
+    if typeBM == 'set':
+        need_params['sid'] = beatmapData["beatmapset_id"]
+    else:
+        need_params['bid'] = beatmapData["beatmap_id"]
+    requests.get(glob.conf.config["discord"]["krbot"]+"api/v1/submitMap", params=need_params)
 
     chat.sendMessage(glob.BOT_NAME, "#nowranked", msg)
     return msg

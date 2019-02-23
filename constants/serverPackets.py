@@ -25,7 +25,7 @@ def loginLocked():
 	return packets
 
 def banClient():
-	packets = packetHelper.buildPacket(-3)
+	packets = packetHelper.buildPacket(packetIDs.server_userID, [[-3, dataTypes.SINT32]])
 	packets += rtx("YOU HAS BEEN LOCKED! BYE PIDOR")
 	return packets
 

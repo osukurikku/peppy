@@ -1,5 +1,4 @@
 # KrykiZZ fix for some country id's
-# TODO: Update countries list
 countryCodes = {
 	"IO": 104,
 	"PS": 178,
