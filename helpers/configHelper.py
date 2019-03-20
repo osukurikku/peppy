@@ -47,7 +47,6 @@ class config:
 			self.config.get("server","gzip")
 			self.config.get("server","gziplevel")
 			self.config.get("server","cikey")
-			self.config.get("server","ppApiKey")
 
 			self.config.get("cheesegull", "apiurl")
 			self.config.get("cheesegull", "apikey")
@@ -111,7 +110,6 @@ class config:
 		self.config.set("server", "gzip", "1")
 		self.config.set("server", "gziplevel", "6")
 		self.config.set("server", "cikey", "changeme")
-		self.config.set("server","ppApiKey")
 
 		self.config.add_section("cheesegull")
 		self.config.set("cheesegull", "apiurl", "http://cheesegu.ll/api")

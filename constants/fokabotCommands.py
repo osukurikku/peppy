@@ -494,75 +494,6 @@ def getPPMessage(userID, just_data=False):
         # API error
         return "Unknown error in LETS API call."
 
-def getPPMessageFromB(userID, just_data=False):
-    try:
-        user = userUtils.getUserStats(userID, gameModes.STD)
-        api = requests.get("https://api.kotrik.ru/api/recommendMap", params={
-            'pp': user["pp"],
-            'token': glob.conf.config["server"]["ppApiKey"]
-        }).json()
-
-        # Get user token
-        token = glob.tokens.getTokenFromUserID(userID)
-        if token is None:
-            return False
-
-        currentMap = api["b"]
-        currentMods = api["m"]
-
-        # Send request to LETS api
-        resp = requests.get("http://127.0.0.1:5002/api/v1/pp?b={}&m={}".format(currentMap, currentMods),
-                            timeout=10).text
-        data = json.loads(resp)
-
-        # Make sure status is in response data
-        if "status" not in data:
-            raise exceptions.apiException
-
-        # Make sure status is 200
-        if data["status"] != 200:
-            if "message" in data:
-                return "Error in LETS API call ({}).".format(data["message"])
-            else:
-                raise exceptions.apiException
-
-        if just_data:
-            return data
-
-        # Return response in chat
-        # Song name and mods
-        msg = "{song}{plus}{mods}  ".format(song=data["song_name"], plus="+" if currentMods > 0 else "",
-                                            mods=generalUtils.readableMods(currentMods))
-
-
-        msg += "95%: {pp95}pp | 98%: {pp98}pp | 99% {pp99}pp | 100%: {pp100}pp".format(pp100=data["pp"][0],
-                                                                                       pp99=data["pp"][1],
-                                                                                       pp98=data["pp"][2],
-                                                                                       pp95=data["pp"][3])
-
-        originalAR = data["ar"]
-        # calc new AR if HR/EZ is on
-        if (currentMods & mods.EASY) > 0:
-            data["ar"] = max(0, data["ar"] / 2)
-        if (currentMods & mods.HARDROCK) > 0:
-            data["ar"] = min(10, data["ar"] * 1.4)
-
-        arstr = " ({})".format(originalAR) if originalAR != data["ar"] else ""
-
-        # Beatmap info
-        msg += " | {bpm} BPM | AR {ar}{arstr} | {stars:.2f} stars".format(bpm=data["bpm"], stars=data["stars"],
-                                                                          ar=data["ar"], arstr=arstr)
-
-        # Return final message
-        return msg
-    except requests.exceptions.RequestException:
-        # RequestException
-        return "API Timeout. Please try again in a few seconds."
-    except exceptions.apiException:
-        # API error
-        return "Unknown error in LETS API call."
-
-
 # except:
 # Unknown exception
 # TODO: print exception
@@ -613,20 +544,6 @@ def tillerinoNp(fro, chan, message):
 
         # Return tillerino message
         return getPPMessage(userID)
-    except:
-        return False
-
-def tillerinoRecommend(fro, chan, message):
-    try:
-        #Check for sended in PM
-        if chan.startswith("#"):
-            print("here")
-            return False
-        token = glob.tokens.getTokenFromUsername(fro)
-        print("ok")
-        userID = token.userID
-        print("i want see message")
-        return getPPMessageFromB(userID)
     except:
         return False
 
@@ -1599,9 +1516,6 @@ commands = [
     }, {
         "trigger": "!last",
         "callback": tillerinoLast
-    }, {
-        "trigger": "!r",
-        "callback": tillerinoRecommend
     }, {
         "trigger": "!ir",
         "privileges": privileges.ADMIN_MANAGE_SERVERS,

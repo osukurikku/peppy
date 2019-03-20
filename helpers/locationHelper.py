@@ -1,5 +1,5 @@
 import json
-import urllib.request
+import requests
 
 from common.log import logUtils as log
 from objects import glob
@@ -13,8 +13,9 @@ def getCountry(ip):
 	:return: country code. XX if invalid.
 	"""
 	try:
-		# Try to get country from Pikolo Aul's Go-Sanic ip API
-		result = json.loads(urllib.request.urlopen("{}/{}".format(glob.conf.config["localize"]["ipapiurl"], ip), timeout=3).read().decode())["country"]
+		# Re-coded that shit, because ripple used python 2 api) And this is not readable ;d
+		resp = requests.get("{}/{}".format(glob.conf.config['localize']['ipapiurl'], ip), timeout=3)
+		result = json.loads(resp.text)["country"]
 		return result.upper()
 	except:
 		log.error("Error in get country")
@@ -29,7 +30,8 @@ def getLocation(ip):
 	"""
 	try:
 		# Try to get position from Pikolo Aul's Go-Sanic ip API
-		result = json.loads(urllib.request.urlopen("{}/{}".format(glob.conf.config["localize"]["ipapiurl"], ip), timeout=3).read().decode())["loc"].split(",")
+		resp = requests.get("{}/{}".format(glob.conf.config['localize']['ipapiurl'], ip), timeout=3)
+		result = json.loads(resp.text)["loc"].split(",")
 		return float(result[0]), float(result[1])
 	except:
 		log.error("Error in get position")
