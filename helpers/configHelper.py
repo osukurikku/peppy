@@ -77,6 +77,8 @@ class config:
 			self.config.get("localize","ipapiurl")
 
 			self.config.get("discord", "webhook_rank")
+
+			self.config.get("kotrik", 'pprapi')
 			return True
 		except configparser.Error:
 			return False
@@ -147,6 +149,9 @@ class config:
 		self.config.set("localize", "ipapiurl", "http://ip.zxq.co")
 
 		self.config.set("discord", "webhook_rank", "")
+
+		self.config.add_section("kotrik")
+		self.config.set("kotrik", "pprapi", "")
 
 		# Write ini to file and close
 		self.config.write(f)

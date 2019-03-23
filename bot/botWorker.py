@@ -19,6 +19,7 @@ from helpers import chatHelper as chat
 from helpers import systemHelper, humanize
 from objects import fokabot
 from objects import glob
+from helpers import kotrikhelper
 
 """
 fokaBot by ripple. Re-factored by KotRik
@@ -535,8 +536,6 @@ def tillerino_np(fro, chan, message):
         if userUtils.getPrivileges(userUtils.getID(fro)) & privileges.USER_DONOR == 0 and chan.startswith("#"):
             return "Only donors can write here this command."
 
-        print("start but unsuccs")
-
         playWatch = message[1] == "playing" or message[1] == "watching"
         # Get URL from message
         if message[1] == "listening":
@@ -818,7 +817,7 @@ def report(fro, chan, message):
 
         # Everything is fine, submit report
         glob.db.execute(
-            "INSERT INTO reports (id, from_uid, to_uid, reason, chatlog, time) VALUES (NULL, %s, %s, %s, %s, %s)",
+            "INSERT INTO reports (id, from_uid, to_uid, reason, chatlog, time, assigned) VALUES (NULL, %s, %s, %s, %s, %s, 0)",
             [userUtils.getID(fro), targetID, "{reason} - ingame {info}".format(reason=reason, info="({})".format(
                 additionalInfo) if additionalInfo is not None else ""), chatlog, int(time.time())])
         msg = "You've reported {target} for {reason}{info}. A Community Manager will check your report as soon as possible. Every !report message you may see in chat wasn't sent to anyone, so nobody in chat, but admins, know about your report. Thank you for reporting!".format(
@@ -1075,3 +1074,37 @@ def clan_top(fro, chan, message):
 @botCommands.on_command("!help")
 def help_command(fro, chan, message):
     return "Click (here)[https://kurikku.pw/index.php?p=16&id=4] for the full command list"
+
+@botCommands.on_command("!recommend")
+def recommend(fro, chan, message):
+    user_id = userUtils.getID(fro)
+    user = userUtils.getUserStats(user_id, 0)
+
+    params = {
+        'pp': user['pp'],
+        'token': glob.conf.config["kotrik"]["pprapi"]
+    }
+    mega_pp_recommendation = requests.get("https://api.kotrik.ru/api/recommendMap", params=params)
+    result = None
+    try:
+        result = json.loads(mega_pp_recommendation.text)
+    except:
+        return "I can't recommend you, because api is broken("
+
+    mods = generalUtils.readableMods(result['m'])
+    if mods == "":
+        mods = "nomod"
+
+    formatResult = "[http://osu.ppy.sh/b/{bid} {art} - {name} [{diff}]] Stars: {stars} | BPM: {bpm} | Length: {length} | PP: {pps} {mods}".format(
+        bid=result['b'],
+        art=result['art'],
+        name=result['t'],
+        diff=result['v'],
+        stars=result['d'],
+        bpm=result['bpm'],
+        length=kotrikhelper.secondsToFormatted(result['l']),
+        pps=result['pp99'],
+        mods=f"+{mods}"
+    )
+
+    return formatResult
