@@ -257,6 +257,6 @@ def getCountry(isocode: str):
     country_code_upper = isocode.upper()
     country = contries.get(country_code_upper, None)
     if country:
-        return country
+        return country_code_upper
     else:
         return None

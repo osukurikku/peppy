@@ -4,9 +4,12 @@ import re
 from common import generalUtils
 from common.constants import actions
 from common.ripple import userUtils
-from constants import fokabotCommands
 from constants import serverPackets
 from objects import glob
+
+# Epic bot part.
+import shlex
+from bot import mainHandler
 
 # Tillerino np regex, compiled only once to increase performance
 npRegex = re.compile("^https?:\\/\\/osu\\.ppy\\.sh\\/b\\/(\\d*)")
@@ -40,27 +43,21 @@ def fokabotResponse(fro, chan, message):
 	:param message: chat mesage
 	:return: FokaBot's response or False if no response
 	"""
-	for i in fokabotCommands.commands:
-		# Loop though all commands
-		if re.compile("^{}( (.+)?)?$".format(i["trigger"])).match(message.strip()):
-			# message has triggered a command
+	cmd, vals = None, None
+	for (k, v) in mainHandler.store.handlers.items():
+		if message.strip().startswith(k):
+			cmd, vals = k, v
+			break
 
-			# Make sure the user has right permissions
-			if i["privileges"] is not None:
-				# Rank = x
-				if userUtils.getPrivileges(userUtils.getID(fro)) & i["privileges"] == 0:
-					return False
+	if not cmd:
+		return False
 
-			# Check argument number
-			message = message.split(" ")
-			if i["syntax"] != "" and len(message) <= len(i["syntax"].split(" ")):
-				return "Wrong syntax: {} {}".format(i["trigger"], i["syntax"])
+	if vals['privileges'] and userUtils.getPrivileges(userUtils.getID(fro)) & vals["privileges"] == 0:
+		return False
 
-			# Return response or execute callback
-			if i["callback"] is None:
-				return i["response"]
-			else:
-				return i["callback"](fro, chan, message[1:])
+	args = shlex.split(message.strip()[len(cmd):])
+	syntaxargs = shlex.split(vals['syntax'])
+	if vals['syntax'] != "" and len(args) < len(syntaxargs):
+		return f"Wrong syntax: {cmd} {vals['syntax']}"
 
-	# No commands triggered
-	return False
+	return mainHandler.store.call_command(cmd, fro, chan, args)
