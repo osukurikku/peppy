@@ -538,12 +538,7 @@ def tillerino_np(fro, chan, message):
 
         playWatch = message[1] == "playing" or message[1] == "watching"
         # Get URL from message
-        if message[1] == "listening":
-            beatmap_URL = str(message[3][1:])
-        elif playWatch:
-            beatmap_URL = str(message[2][1:])
-        else:
-            return False
+        beatmap_URL = message[0][1:]
 
         modsEnum = 0
         mapping = {
