@@ -36,8 +36,7 @@ class chatFilters:
 		:param message: normal message
 		:return: filtered message
 		"""
-		return message
-		"""
+
 		# Split words by spaces
 		messageTemp = message.split(" ")
 
@@ -51,4 +50,3 @@ class chatFilters:
 
 		# Return filtered message
 		return message
-		"""

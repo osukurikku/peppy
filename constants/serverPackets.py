@@ -101,10 +101,14 @@ def userPanel(userID, force = False):
 	userRank = 0
 	if username == glob.BOT_NAME:
 		userRank |= userRanks.MOD
-	elif userUtils.isInPrivilegeGroup(userID, "developer"):
+	elif userUtils.isInPrivilegeGroup(userID, "Owner"):
+		userRank |= userRanks.PEPPY
+	elif userUtils.isInPrivilegeGroup(userID, "Developer") or userUtils.isInPrivilegeGroup(userID, "Community Manager"):
 		userRank |= userRanks.ADMIN
-	elif userUtils.isInPrivilegeGroup(userID, "chat mod"):
+	elif userUtils.isInPrivilegeGroup(userID, "Chat Moderators") or userUtils.isInPrivilegeGroup(userID, "Replay moderator"):
 		userRank |= userRanks.MOD
+	elif userUtils.isInPrivilegeGroup(userID, "BAT"):
+		userRank |= userRanks.BAT
 	elif (userToken.privileges & privileges.USER_DONOR) > 0:
 		userRank |= userRanks.SUPPORTER
 	else:

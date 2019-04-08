@@ -9,4 +9,4 @@ redistest.py
 *.so
 .pyenv
 .idea/*
-*.iml
+*.imlfi
