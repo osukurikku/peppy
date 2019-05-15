@@ -29,6 +29,11 @@ def handle(userToken, packetData):
 			# Join that match
 			userToken.joinMatch(matchID)
 
+			# Multiplayer Room Patch
+			for i in range(0, 16):
+				if match.slots[i].status is not 4:
+					match.slots[i].status = packetData["slot{}Status".format(i)]
+
 			# Give host to match creator
 			match.setHost(userID)
 			match.sendUpdates()
