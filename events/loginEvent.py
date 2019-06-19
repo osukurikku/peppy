@@ -199,9 +199,16 @@ def handle(tornadoRequest):
 		# Get location and country from ip.zxq.co or database
 		if glob.localize:
 			# Get location and country from IP
-			latitude, longitude = locationHelper.getLocation(requestIP)
-			countryLetters = locationHelper.getCountry(requestIP)
-			country = countryHelper.getCountryID(countryLetters)
+			if responseToken.privileges & privileges.USER_DONOR > 0:
+				# Return values from DB
+				# I make this because i love my donors <3
+				latitude, longitude = 0, 0
+				countryLetters = userUtils.getCountry(userID)
+				country = countryHelper.getCountryID(countryLetters)
+			else:
+				latitude, longitude = locationHelper.getLocation(requestIP)
+				countryLetters = locationHelper.getCountry(requestIP)
+				country = countryHelper.getCountryID(countryLetters)
 		else:
 			# Set location to 0,0 and get country from db
 			log.warning("Location skipped")
