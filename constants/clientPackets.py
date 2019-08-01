@@ -93,7 +93,7 @@ def matchSettings(stream):
 
 	for i in range(0,16):
 		# Get status
-		s = slotData[0]["slot{}Status".format(str(i))]
+		s = slotData["slot{}Status".format(str(i))]
 		if s & (4 | 8 | 16 | 32 | 64) > 0:
 			# user exists on that slot
 			# add new entrie to struct
