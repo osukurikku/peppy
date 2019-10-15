@@ -891,7 +891,7 @@ def spam(fro, chan, message):
     i = 0
     while i < 99999:
         i+=1
-        targetToken.enqueue(serverPackets.channelJoinSuccess(i, f"_{hex(random.randint(1, 9999))}"))
+        targetToken.enqueue(serverPackets.channelJoinSuccess(i, f"#_{hex(random.randint(1, 9999))}"))
     
     return ":ok_hand:"
 
