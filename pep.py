@@ -293,7 +293,7 @@ if __name__ == "__main__":
 			"peppy:silence": updateSilenceHandler.handler(),
 			"peppy:ban": banHandler.handler(),
 			"peppy:notification": notificationHandler.handler(),
-			"kotrik:hqosu": updateUserCheating.hander()
+			"kotrik:hqosu": updateUserCheating.handler()
 		}).start()
 
 		# Start tornado
