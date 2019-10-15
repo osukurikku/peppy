@@ -267,7 +267,9 @@ def sendMessage(fro = "", to = "", message = "", token = None, toIRC = True):
 
 		# Spam protection (ignore FokaBot)
 		if token.userID > 999:
-			token.spamProtection()
+			if not (token.spectatingUserID and message.startswith("\x01ACTION is playing")) \
+			or not (token.spectating and message.startswith("\x01ACTION is playing")):
+				token.spamProtection()
 
 		# Fokabot message
 		if isChannel == True or to.lower() == glob.BOT_NAME.lower():
