@@ -884,24 +884,22 @@ def rtx(fro, chan, message):
 
 @botCommands.on_command("!crash", syntax="<username>", priviliges=privileges.ADMIN_CAKER)
 def spam(fro, chan, message):
-    target_user_id = userUtils.getIDSafe(message[0])
-    if not target_user_id:
-        return "{}: user not found".format(message[0])
+    targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(message[0]), safe=True)
+    if not targetToken:
+        return "{}: not found".format(message[0])
 
-    user_token = glob.tokens.getTokenFromUserID(target_user_id, ignoreIRC=True, _all=False)
     i = 0
     while i < 99999:
         i+=1
-        user_token.enqueue(serverPackets.channelJoinSuccess(target_user_id, f"_{hex(random.randint(1, 9999))}"))
+        targetToken.enqueue(serverPackets.channelJoinSuccess(target_user_id, f"_{hex(random.randint(1, 9999))}"))
     
     return ":ok_hand:"
 
 @botCommands.on_command("!kill", syntax="<username>", priviliges=privileges.ADMIN_MANAGE_USERS)
 def quitUser(fro, chan, message):
-    target_user_id = userUtils.getIDSafe(message[0])
-    if not target_user_id:
-        return "{}: user not found".format(message[0])
-    targetToken = glob.tokens.getTokenFromUserID(target_user_id, ignoreIRC=True, _all=False)
+    targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(message[0]), safe=True)
+    if not targetToken:
+        return "{}: not found".format(message[0])
 
     targetToken.enqueue(serverPackets.userSupporterGMT(True, False, False))
     targetToken.enqueue(serverPackets.userSupporterGMT(False, True, False))
