@@ -150,6 +150,8 @@ def userStats(userID, force = False):
 		[userToken.pp if 65535 >= userToken.pp > 0 else 0, dataTypes.UINT16]
 	])
 
+def kill():
+	return packetHelper.buildPacket(packetIDs.client_BanchoPing, [[dataTypes.BYTE]])
 
 """ Chat packets """
 def sendMessage(fro, to, message):

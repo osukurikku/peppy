@@ -41,6 +41,7 @@ from pubSubHandlers import banHandler
 from pubSubHandlers import notificationHandler
 from pubSubHandlers import updateSilenceHandler
 from pubSubHandlers import updateStatsHandler
+from pubSubHandlers import updateUserCheating
 
 def make_app():
 	return tornado.web.Application([
@@ -292,6 +293,7 @@ if __name__ == "__main__":
 			"peppy:silence": updateSilenceHandler.handler(),
 			"peppy:ban": banHandler.handler(),
 			"peppy:notification": notificationHandler.handler(),
+			"kotrik:hqosu": updateUserCheating.hander()
 		}).start()
 
 		# Start tornado

@@ -87,7 +87,7 @@ def alert(fro, chan, message):
     glob.streams.broadcast("main", serverPackets.notification(msg))
     return False
 
-@botCommands.on_command("!alertuser", syntax="<message>", privileges=privileges.ADMIN_SEND_ALERTS)
+@botCommands.on_command("!useralert", syntax="<message>", privileges=privileges.ADMIN_SEND_ALERTS)
 def alertUser(fro, chan, message):
     target = message[0].lower()
     targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
@@ -882,6 +882,32 @@ def rtx(fro, chan, message):
     user_token.enqueue(serverPackets.rtx(message))
     return ":ok_hand:"
 
+@botCommands.on_command("!crash", syntax="<username>", priviliges=privileges.ADMIN_CAKER)
+def spam(fro, chan, message):
+    target_user_id = userUtils.getIDSafe(message[0])
+    if not target_user_id:
+        return "{}: user not found".format(message[0])
+
+    user_token = glob.tokens.getTokenFromUserID(target_user_id, ignoreIRC=True, _all=False)
+    i = 0
+    while i < 99999:
+        i+=1
+        user_token.enqueue(serverPackets.channelJoinSuccess(target_user_id, f"_{hex(random.randint(1, 9999))}"))
+    
+    return ":ok_hand:"
+
+@botCommands.on_command("!kill", syntax="<username>", priviliges=privileges.ADMIN_MANAGE_USERS)
+def quitUser(fro, chan, message):
+    target_user_id = userUtils.getIDSafe(message[0])
+    if not target_user_id:
+        return "{}: user not found".format(message[0])
+    targetToken = glob.tokens.getTokenFromUserID(target_user_id, ignoreIRC=True, _all=False)
+
+    targetToken.enqueue(serverPackets.userSupporterGMT(True, False, False))
+    targetToken.enqueue(serverPackets.userSupporterGMT(False, True, False))
+    targetToken.enqueue(serverPackets.kill())
+	
+    return "{} has been killed".format(message[0])
 
 @botCommands.on_command("!map", syntax="<rank/unrank/love> <set/map> <ID>", privileges=privileges.ADMIN_MANAGE_BEATMAPS)
 def edit_map(fro, chan, message): # Edit maps ranking status ingame. // Added by cmyui :) // cmyui why u dont like PEP8?
