@@ -99,14 +99,12 @@ def userPanel(userID, force = False):
 	# Get username color according to rank
 	# Only admins and normal users are currently supported
 	userRank = 0
-	if username == glob.BOT_NAME:
+	if username == glob.BOT_NAME or userUtils.isInPrivilegeGroup(userID, "Chat Moderators") or userUtils.isInPrivilegeGroup(userID, "Replay moderator"):
 		userRank |= userRanks.MOD
 	elif userUtils.isInPrivilegeGroup(userID, "Owner"):
 		userRank |= userRanks.PEPPY
 	elif userUtils.isInPrivilegeGroup(userID, "Developer") or userUtils.isInPrivilegeGroup(userID, "Community Manager"):
 		userRank |= userRanks.ADMIN
-	elif userUtils.isInPrivilegeGroup(userID, "Chat Moderators") or userUtils.isInPrivilegeGroup(userID, "Replay moderator"):
-		userRank |= userRanks.MOD
 	elif userUtils.isInPrivilegeGroup(userID, "BAT"):
 		userRank |= userRanks.BAT
 	elif (userToken.privileges & privileges.USER_DONOR) > 0:
@@ -151,7 +149,7 @@ def userStats(userID, force = False):
 	])
 
 def kill():
-	return packetHelper.buildPacket(packetIDs.client_BanchoPing, [[dataTypes.BYTE]])
+	return packetHelper.buildPacket(packetIDs.client_BanchoPing, [[0, dataTypes.BYTE]])
 
 """ Chat packets """
 def sendMessage(fro, to, message):
