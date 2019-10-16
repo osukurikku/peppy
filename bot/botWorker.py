@@ -290,15 +290,14 @@ def lock_user(fro, chan, message):
     if not targetUserID:
         return "{}: user not found".format(target)
 
-    # Set allowed to 0
-    userUtils.ban(targetUserID)
+    # only lock client now ;d
+    #userUtils.ban(targetUserID)
 
     targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
     if targetToken is not None:
         targetToken.enqueue(serverPackets.banClient())
 
-    log.rap(userID, "has banned and locked {}".format(target), True)
-    return "RIP {}. You will not be missed. NEVER!".format(target)
+    return "RIP {}. Now he have locked osu!client!".format(target)
 
 
 @botCommands.on_command("!unban", syntax="<target>", privileges=privileges.ADMIN_BAN_USERS)
