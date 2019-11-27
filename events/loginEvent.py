@@ -10,6 +10,7 @@ from constants import serverPackets
 from helpers import chatHelper as chat
 from helpers import countryHelper
 from helpers import locationHelper
+from helpers import kotrikhelper
 from objects import glob
 
 
@@ -99,6 +100,9 @@ def handle(tornadoRequest):
 
 		# Log user IP
 		userUtils.logIP(userID, requestIP)
+
+		# Log user osuver
+		kotrikhelper.setUserLastOsuVer(userID, osuVersion)
 
 		# Delete old tokens for that user and generate a new one
 		isTournament = "tourney" in osuVersion
