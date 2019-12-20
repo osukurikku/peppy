@@ -594,8 +594,8 @@ def tillerino_mods(fro, chan, message):
         modsList = [message[0][i:i + 2].upper() for i in range(0, len(message[0]), 2)]
         modsEnum = 0
         for i in modsList:
-            if i not in ["NO", "NF", "EZ", "HD", "HR", "DT", "HT", "NC", "FL", "SO"]:
-                return "Invalid mods. Allowed mods: NO, RX, NF, EZ, HD, HR, DT, HT, NC, FL, SO. Do not use spaces for multiple mods."
+            if i not in ["NO", "NF", "EZ", "HD", "HR", "DT", "HT", "NC", "FL", "SO", "AP", "RX"]:
+                return "Invalid mods. Allowed mods: NO, RX, NF, EZ, HD, HR, DT, HT, NC, FL, SO, RX, AP. Do not use spaces for multiple mods."
             if i == "NO":
                 modsEnum = 0
                 break
@@ -617,6 +617,10 @@ def tillerino_mods(fro, chan, message):
                 modsEnum += mods.FLASHLIGHT
             elif i == "SO":
                 modsEnum += mods.SPUNOUT
+            elif i == "AP":
+                modsEnum += mods.RELAX2
+            elif i == "RX":
+                modsEnum += mods.RELAX
 
         # Set mods
         token.tillerino[1] = modsEnum
