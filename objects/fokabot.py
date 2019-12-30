@@ -1,5 +1,6 @@
 """FokaBot related functions"""
 import re
+import random
 
 from common import generalUtils
 from common.constants import actions
@@ -23,6 +24,17 @@ def connect():
 	glob.BOT_NAME = userUtils.getUsername(999)
 	token = glob.tokens.addToken(999)
 	token.actionID = actions.IDLE
+	token.actionText = random.choice(["\n-- Sotarks is gay! --", 
+									  "\n-- ck was here --",
+									  "\n-- Welcome to Kurikku --",
+									  "\n-- KotRik is not a gay --",
+									  "\n-- osu!godland is deprecated --",
+									  "\n-- rarenai #1 in 2019 --",
+									  "\n-- Plz don't use aoba switcher, it sucks --",
+									  "\n-- Maybe u wanna play HDDTHR? --",
+									  "\n-- 727pp isn't comming( --",
+									  "\n-- flipzky is too lazy to make tourney ;d --",
+									  "\n-- i wanna 100 players online ;d --"])
 	glob.streams.broadcast("main", serverPackets.userPanel(999))
 	glob.streams.broadcast("main", serverPackets.userStats(999))
 
