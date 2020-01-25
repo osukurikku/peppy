@@ -1083,8 +1083,7 @@ def clan_top(fro, chan, message):
     user_settings = glob.redis.get("kr:user_settings:{}".format(user_id))
     if not user_settings:
         user_settings = {
-            'clan_top_enabled': status,
-            'pp_over_score': True
+            'clan_top_enabled': status
         }
     else:
         user_settings = json.loads(user_settings)
