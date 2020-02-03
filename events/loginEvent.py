@@ -1,6 +1,8 @@
 import sys
 import time
 import traceback
+import re
+import datetime
 
 from common.constants import privileges
 from common.log import logUtils as log
@@ -12,7 +14,6 @@ from helpers import countryHelper
 from helpers import locationHelper
 from helpers import kotrikhelper
 from objects import glob
-
 
 def handle(tornadoRequest):
 	# Data to return
@@ -101,8 +102,18 @@ def handle(tornadoRequest):
 		# Log user IP
 		userUtils.logIP(userID, requestIP)
 
-		# Log user osuver
+		# Log user osuver and check osu!ver
 		kotrikhelper.setUserLastOsuVer(userID, osuVersion)
+		osuVersionInt = osuVersion[1:9]
+		if not osuVersionInt[0].isdigit() or osuVersion in ['b20190226.2', 'b20191223.3', 'b20190716.5']:
+			raise exceptions.haxException()
+		
+		# Check one year
+		now = datetime.datetime.now()
+		vernow = datetime.datetime(int(osuVersionInt[:4]), int(osuVersionInt[4:6]), int(osuVersionInt[6:8]), 00, 00)
+		deltanow = now - vernow
+		if deltanow.days > 360:
+			raise exceptions.haxException()
 
 		# Delete old tokens for that user and generate a new one
 		isTournament = "tourney" in osuVersion
@@ -264,7 +275,7 @@ def handle(tornadoRequest):
 		# Using oldoldold client, we don't have client data. Force update.
 		# (we don't use enqueue because we don't have a token since login has failed)
 		responseData += serverPackets.forceUpdate()
-		responseData += serverPackets.notification("Hory shitto, your client is TOO old! Nice prehistory! Please turn update it from the settings!")
+		responseData += serverPackets.notification("Sorry, you use outdated/bad osu!version. Please update your game to join server")
 	except:
 		log.error("Unknown error!\n```\n{}\n{}```".format(sys.exc_info(), traceback.format_exc()))
 	finally:
