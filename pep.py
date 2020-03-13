@@ -9,6 +9,7 @@ import tornado.ioloop
 import tornado.web
 from raven.contrib.tornado import AsyncSentryClient
 import redis
+import time
 
 from common import generalUtils
 from common.constants import bcolors
@@ -231,6 +232,27 @@ if __name__ == "__main__":
 				consoleHelper.printColored("[!] Warning! Sentry logging is disabled!", bcolors.YELLOW)
 		except:
 			consoleHelper.printColored("[!] Error while starting sentry client! Please check your config.ini and run the server again", bcolors.RED)
+
+		# Set up bancho stats
+		try:
+			isStatsEnabled = generalUtils.stringToBool(glob.conf.config["kotrik"]["statsEnable"])
+			if isStatsEnabled:
+				# start thread
+				def statsUpdateLoop():
+					while True:
+						time.sleep(120) # sleeping 120 seconds (2 minutes)
+
+						online_users = len(glob.tokens.tokens)
+						multiplayers_matches = len(glob.matches.matches)
+
+						glob.db.execute("INSERT INTO bancho_stats VALUES (users_osu, multiplayer_games) VALUES (?, ?)", [online_users, multiplayers_matches])
+				
+				threading.Thread(target=statsUpdateLoop).start()
+			else:
+				consoleHelper.printColored("[!] Stats pushing is disabled!", bcolors.YELLOW)
+		except:
+			consoleHelper.printColored("[!] Stats pushing can't start due some troubles! Please check this!", bcolors.RED)
+
 
 		# Set up datadog
 		try:

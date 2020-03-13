@@ -79,6 +79,7 @@ class config:
 			self.config.get("discord", "webhook_rank")
 
 			self.config.get("kotrik", 'pprapi')
+			self.config.get("kotrik", "statsEnable")
 			return True
 		except configparser.Error:
 			return False
@@ -152,6 +153,7 @@ class config:
 
 		self.config.add_section("kotrik")
 		self.config.set("kotrik", "pprapi", "")
+		self.config.set("kotrik", "statsEnable", "0")
 
 		# Write ini to file and close
 		self.config.write(f)
