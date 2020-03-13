@@ -245,7 +245,7 @@ if __name__ == "__main__":
 						online_users = len(glob.tokens.tokens)
 						multiplayers_matches = len(glob.matches.matches)
 
-						glob.db.execute("INSERT INTO bancho_stats VALUES (users_osu, multiplayer_games) VALUES (?, ?)", [online_users, multiplayers_matches])
+						glob.db.execute("INSERT INTO bancho_stats (users_osu, multiplayer_games) VALUES (%s, %s)", [online_users, multiplayers_matches])
 				
 				threading.Thread(target=statsUpdateLoop).start()
 			else:
