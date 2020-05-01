@@ -401,6 +401,7 @@ class match:
 			"mods": self.mods,
 			"game_mode": self.gameMode,
 			"host_id": self.hostUserID,
+			"host_username": userUtils.getUsername(self.hostUserID),
 			"scores": {}
 		}
 
@@ -412,7 +413,8 @@ class match:
 					"mods": self.slots[i].mods,
 					"failed": self.slots[i].failed,
 					"pass": self.slots[i].passed,
-					"team": self.slots[i].team
+					"team": self.slots[i].team,
+					"username": userUtils.getUsername(glob.tokens.tokens[self.slots[i].user].userID) # vinse shit ;3
 				}
 
 		# Send the info to the api
