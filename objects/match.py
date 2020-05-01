@@ -400,6 +400,7 @@ class match:
 			"beatmap_id": self.beatmapID,
 			"mods": self.mods,
 			"game_mode": self.gameMode,
+			"host_id": self.hostUserID,
 			"scores": {}
 		}
 
