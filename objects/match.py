@@ -401,7 +401,7 @@ class match:
 			"mods": self.mods,
 			"game_mode": self.gameMode,
 			"host_id": self.hostUserID,
-			"host_username": userUtils.getUsername(self.hostUserID),
+			"host_user_name": userUtils.getUsername(self.hostUserID),
 			"scores": {}
 		}
 
