@@ -309,10 +309,10 @@ if __name__ == "__main__":
 		# Update last-id for correct workable multi API
 		lastMultiID = glob.redis.get("ripple:last_multi_id")
 		if not lastMultiID:
-			lastMultiID = 1
+			lastMultiID = b'1' # костыль
 			glob.redis.set("ripple:last_multi_id", 1)
 
-		glob.matchList.lastID = lastMultiID
+		glob.matches.lastID = int(lastMultiID.decode())
 
 		# Connect to pubsub channels
 		pubSub.listener(glob.redis, {
