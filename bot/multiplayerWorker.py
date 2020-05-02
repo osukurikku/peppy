@@ -5,7 +5,7 @@ from common import generalUtils
 from common.constants import mods
 from common.constants import privileges
 from common.ripple import userUtils
-from constants import exceptions, slotStatuses, matchModModes, matchTeams, matchTeamTypes
+from constants import exceptions, slotStatuses, matchModModes, matchTeams, matchTeamTypes, matchScoringTypes
 from constants import serverPackets
 from helpers import chatHelper as chat
 from objects import glob
@@ -319,6 +319,15 @@ def multiplayer(fro, chan, message):
             msg += "Nobody.\n"
         return msg
 
+    def mpScoreV():
+        if len(message) < 1 or message[0] not in ("1", "2"):
+            raise exceptions.invalidArgumentsException("Wrong syntax: !mp scorev <1|2>")
+        
+        _match = glob.matches.matches[get_match_id_from_channel(chan)]
+        _match.matchScoringType = matchScoringTypes.SCORE_V2 if message[1] == "2" else matchScoringTypes.SCORE
+        _match.sendUpdates()
+        return "Match scoring type set to scorev{}".format(message[1])
+
     try:
         subcommands = {
             "make": mp_make,
@@ -340,6 +349,7 @@ def multiplayer(fro, chan, message):
             "randompassword": mp_random_password,
             "mods": mp_mods,
             "team": mp_team,
+            "scorev": mpScoreV,
             "settings": mp_settings,
         }
         requestedSubcommand = message[0].lower().strip()

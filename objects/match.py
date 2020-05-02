@@ -402,6 +402,9 @@ class match:
 			"game_mode": self.gameMode,
 			"host_id": self.hostUserID,
 			"host_user_name": userUtils.getUsername(self.hostUserID),
+			"game_type": self.matchTeamType,
+			"game_score_condition": self.matchScoringType,
+			"game_mod_mode": self.matchModMode,
 			"scores": {}
 		}
 
