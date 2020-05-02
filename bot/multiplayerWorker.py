@@ -320,7 +320,7 @@ def multiplayer(fro, chan, message):
         return msg
 
     def mpScoreV():
-        if len(message) < 1 or message[0] not in ("1", "2"):
+        if len(message) < 2 or message[1] not in ("1", "2"):
             raise exceptions.invalidArgumentsException("Wrong syntax: !mp scorev <1|2>")
         
         _match = glob.matches.matches[get_match_id_from_channel(chan)]
