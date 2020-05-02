@@ -306,6 +306,14 @@ if __name__ == "__main__":
 		log.logMessage("Server started!", discord="bunker", of="info.txt", stdout=False)
 		consoleHelper.printColored("> Tornado listening for HTTP(s) clients on 127.0.0.1:{}...".format(serverPort), bcolors.GREEN)
 
+		# Update last-id for correct workable multi API
+		lastMultiID = glob.redis.get("ripple:last_multi_id")
+		if not lastMultiID:
+			lastMultiID = 1
+			glob.redis.set("ripple:last_multi_id", 1)
+
+		glob.matchList.lastID = lastMultiID
+
 		# Connect to pubsub channels
 		pubSub.listener(glob.redis, {
 			"peppy:disconnect": disconnectHandler.handler(),

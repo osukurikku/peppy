@@ -29,6 +29,7 @@ class matchList:
 		matchID = self.lastID
 		self.lastID+=1
 		self.matches[matchID] = match.match(matchID, matchName, matchPassword, beatmapID, beatmapName, beatmapMD5, gameMode, hostUserID, isTourney)
+		glob.redis.incr("ripple:last_multi_id")
 		return matchID
 
 	def disposeMatch(self, matchID):
