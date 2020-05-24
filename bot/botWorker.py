@@ -864,7 +864,7 @@ def switch_server(fro, chan, message):
         return "{}: user not found".format(target)
 
     # Connect the user to the end server
-    userToken = glob.tokens.getTokenFromUserID(user_id, ignoreIRC=True, _all=False)
+    userToken = glob.tokens.getTokenFromUserID(target_user_id, ignoreIRC=True, _all=False)
     userToken.enqueue(serverPackets.switchServer(new_server))
 
     # Disconnect the user from the origin server

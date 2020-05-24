@@ -10,7 +10,7 @@ from constants import serverPackets
 from helpers import chatHelper as chat
 from objects import glob
 
-@botCommands.on_command("!mp", privileges=privileges.USER_TOURNAMENT_STAFF, syntax="<subcommand>")
+@botCommands.on_command("!mp", syntax="<subcommand>")
 def multiplayer(fro, chan, message):
     def get_match_id_from_channel(chan):
         if not chan.lower().startswith("#multi_"):
@@ -22,6 +22,30 @@ def multiplayer(fro, chan, message):
         if matchID not in glob.matches.matches:
             raise exceptions.matchNotFoundException()
         return matchID
+    
+    def can_user_touch_lobby(lobbyID: int, uID: int, checkUserIn: bool = False, canRefEdit: bool = True):
+        if lobbyID:
+            match = glob.matches.matches[lobbyID]
+            if checkUserIn:
+                # check user is tourneyHost
+                if match.isTourney and match.tourneyHost == uID:
+                    return True
+
+            # check user is hostUserID
+            if match.hostUserID == uID:
+                return True # user can edit this
+
+            if canRefEdit:
+                # check user is ref
+                if uID in match.refs:
+                    return True
+
+        # check user is tournament staff or its bot ;d
+        if (userUtils.getPrivileges(userUtils.getID(fro)) & privileges.USER_TOURNAMENT_STAFF) > 0 or \
+           fro == glob.BOT_NAME:
+           return True
+
+        return False
 
     def mp_make():
         if len(message) < 2:
@@ -29,8 +53,14 @@ def multiplayer(fro, chan, message):
         matchName = " ".join(message[1:]).strip()
         if not matchName:
             raise exceptions.invalidArgumentsException("Match name must not be empty!")
+        userID = userUtils.getID(fro)
+
+        for (_, __match) in glob.matches.matches.items():
+            if __match.hostUserID == userID:
+                return "You have opened match {}, please close it before use this command!".format(__match.matchID)
+
         matchID = glob.matches.createMatch(matchName, generalUtils.stringMd5(generalUtils.randomString(32)), 0,
-                                           "Tournament", "", 0, -1, isTourney=True)
+                                           "Tournament", "", 0, userID, isTourney=True)
         glob.matches.matches[matchID].sendUpdates()
         return "Tourney match #{} created!".format(matchID)
 
@@ -38,26 +68,45 @@ def multiplayer(fro, chan, message):
         if len(message) < 2 or not message[1].isdigit():
             raise exceptions.invalidArgumentsException("Wrong syntax: !mp join <id>")
         matchID = int(message[1])
-        userToken = glob.tokens.getTokenFromUsername(fro, ignoreIRC=True)
-        userToken.joinMatch(matchID)
-        return "Attempting to join match #{}!".format(matchID)
+        if not matchID in glob.matches.matches:
+            return False
+
+        userID = userUtils.getID(fro)
+        if can_user_touch_lobby(matchID, userID, True):
+            userToken = glob.tokens.getTokenFromUsername(fro, ignoreIRC=True)
+            userToken.joinMatch(matchID)
+            return "Attempting to join match #{}!".format(matchID)
+
+        return False
 
     def mp_close():
         matchID = get_match_id_from_channel(chan)
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(matchID, userID):
+            return False
         glob.matches.disposeMatch(matchID)
         return "Multiplayer match #{} disposed successfully".format(matchID)
 
     def mp_lock():
         matchID = get_match_id_from_channel(chan)
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(matchID, userID):
+            return False
         glob.matches.matches[matchID].isLocked = True
         return "This match has been locked"
 
     def mp_unlock():
         matchID = get_match_id_from_channel(chan)
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(matchID, userID):
+            return False
         glob.matches.matches[matchID].isLocked = False
         return "This match has been unlocked"
 
     def mp_size():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID):
+            return False
         if len(message) < 2 or not message[1].isdigit() or int(message[1]) < 2 or int(message[1]) > 16:
             raise exceptions.invalidArgumentsException("Wrong syntax: !mp size <slots(2-16)>")
         matchSize = int(message[1])
@@ -66,6 +115,9 @@ def multiplayer(fro, chan, message):
         return "Match size changed to {}".format(matchSize)
 
     def mp_move():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID):
+            return False
         if len(message) < 3 or not message[2].isdigit() or int(message[2]) < 0 or int(message[2]) > 16:
             raise exceptions.invalidArgumentsException("Wrong syntax: !mp move <username> <slot>")
         username = message[1]
@@ -82,6 +134,9 @@ def multiplayer(fro, chan, message):
         return result
 
     def mp_host():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID):
+            return False
         if len(message) < 2:
             raise exceptions.invalidArgumentsException("Wrong syntax: !mp host <username>")
         username = message[1].strip()
@@ -96,10 +151,18 @@ def multiplayer(fro, chan, message):
 
     def mp_clear_host():
         matchID = get_match_id_from_channel(chan)
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(matchID, userID):
+            return False
         glob.matches.matches[matchID].removeHost()
         return "Host has been removed from this match"
 
     def mp_start():
+        matchID = get_match_id_from_channel(chan)
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(matchID, userID):
+            return False
+
         def _start():
             matchID = get_match_id_from_channel(chan)
             success = glob.matches.matches[matchID].start()
@@ -148,6 +211,9 @@ def multiplayer(fro, chan, message):
                    "or you might receive a penalty.".format(startTime)
 
     def mp_invite():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID, True):
+            return False
         if len(message) < 2:
             raise exceptions.invalidArgumentsException("Wrong syntax: !mp invite <username>")
         username = message[1].strip()
@@ -166,6 +232,9 @@ def multiplayer(fro, chan, message):
         return "An invite to this match has been sent to {}".format(username)
 
     def mp_map():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID, True):
+            return False
         if len(message) < 2 or not message[1].isdigit() or (len(message) == 3 and not message[2].isdigit()):
             raise exceptions.invalidArgumentsException("Wrong syntax: !mp map <beatmapid> [<gamemode>]")
         beatmapID = int(message[1])
@@ -187,6 +256,9 @@ def multiplayer(fro, chan, message):
         return "Match map has been updated"
 
     def mp_set():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID):
+            return False
         if len(message) < 2 or not message[1].isdigit() or \
                 (len(message) >= 3 and not message[2].isdigit()) or \
                 (len(message) >= 4 and not message[3].isdigit()):
@@ -212,11 +284,17 @@ def multiplayer(fro, chan, message):
         return "Match settings have been updated!"
 
     def mp_abort():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID):
+            return False
         _match = glob.matches.matches[get_match_id_from_channel(chan)]
         _match.abort()
         return "Match aborted!"
 
     def mp_kick():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID, False, False):
+            return False
         if len(message) < 2:
             raise exceptions.invalidArgumentsException("Wrong syntax: !mp kick <username>")
         username = message[1].strip()
@@ -234,18 +312,27 @@ def multiplayer(fro, chan, message):
         return "{} has been kicked from the match.".format(username)
 
     def mp_password():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID):
+            return False
         password = "" if len(message) < 2 or not message[1].strip() else message[1]
         _match = glob.matches.matches[get_match_id_from_channel(chan)]
         _match.changePassword(password)
         return "Match password has been changed!"
 
     def mp_random_password():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID):
+            return False
         password = generalUtils.stringMd5(generalUtils.randomString(32))
         _match = glob.matches.matches[get_match_id_from_channel(chan)]
         _match.changePassword(password)
         return "Match password has been changed to a random one"
 
     def mp_mods():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID, True):
+            return False
         if len(message) < 2:
             raise exceptions.invalidArgumentsException("Wrong syntax: !mp <mod1> [<mod2>] ...")
         _match = glob.matches.matches[get_match_id_from_channel(chan)]
@@ -276,6 +363,9 @@ def multiplayer(fro, chan, message):
         return "Match mods have been updated!"
 
     def mp_team():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID):
+            return False
         if len(message) < 3:
             raise exceptions.invalidArgumentsException("Wrong syntax: !mp team <username> <colour>")
         username = message[1].strip()
@@ -292,6 +382,9 @@ def multiplayer(fro, chan, message):
         return "{} is now in {} team".format(username, colour)
 
     def mp_settings():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID):
+            return False
         _match = glob.matches.matches[get_match_id_from_channel(chan)]
         msg = "PLAYERS IN THIS MATCH:\n"
         empty = True
@@ -320,6 +413,9 @@ def multiplayer(fro, chan, message):
         return msg
 
     def mpScoreV():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID):
+            return False
         if len(message) < 2 or message[1] not in ("1", "2"):
             raise exceptions.invalidArgumentsException("Wrong syntax: !mp scorev <1|2>")
         
@@ -327,6 +423,57 @@ def multiplayer(fro, chan, message):
         _match.matchScoringType = matchScoringTypes.SCORE_V2 if message[1] == "2" else matchScoringTypes.SCORE
         _match.sendUpdates()
         return "Match scoring type set to scorev{}".format(message[1])
+    
+    def mp_addRef():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID, False, False):
+            return False
+        
+        if len(message) < 2:
+            raise exceptions.invalidArgumentsException("Wrong syntax: !mp addref <ref username>")
+        
+        # check is correct nickname
+        userID = userUtils.getID(fro)
+        userRefID = userUtils.getIDSafe(message[1])
+        if not userRefID:
+            raise exceptions.invalidArgumentsException("User not found")
+        
+        if userID == userRefID:
+            return False
+
+        tokens = glob.tokens.getTokenFromUsername(userUtils.safeUsername(message[1]), safe=True, _all=True)
+        if len(tokens) == 0:
+            return "{} is not online".format(message[1])
+
+        _match = glob.matches.matches[get_match_id_from_channel(chan)]
+        if userRefID in _match.refs:
+            return "This referre added already :) He can join with command !mp join {}".format(_match.matchID)
+        
+        _match.refs.append(userRefID)
+        _match.sendUpdates()
+        return "Added {} to match referre. He can join with command !mp join {}".format(userRefID, _match.matchID)
+
+    def mp_removeRef():
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(get_match_id_from_channel(chan), userID, False, False):
+            return False
+        
+        if len(message) < 2:
+            raise exceptions.invalidArgumentsException("Wrong syntax: !mp removeref <ref username>")
+        
+        userRefID = userUtils.getIDSafe(message[1])
+        if not userRefID:
+            raise exceptions.invalidArgumentsException("User not found")
+        
+        _match = glob.matches.matches[get_match_id_from_channel(chan)]
+        if not userRefID in _match.refs:
+            return "This user is not referre."
+
+        _match.refs.remove(userRefID)
+        _match.sendUpdates()
+        chat.partChannel(userRefID, "#multi_{}".format(_match.matchID), kick=True)
+        chat.partChannel(userRefID, "#multiplayer", kick=True)
+        return "Match referre was deleted!"
 
     try:
         subcommands = {
@@ -351,6 +498,8 @@ def multiplayer(fro, chan, message):
             "team": mp_team,
             "scorev": mpScoreV,
             "settings": mp_settings,
+            "addref": mp_addRef,
+            "removeref": mp_removeRef
         }
         requestedSubcommand = message[0].lower().strip()
         if requestedSubcommand not in subcommands:

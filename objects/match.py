@@ -57,6 +57,9 @@ class match:
 		self.beatmapName = beatmapName
 		self.beatmapMD5 = beatmapMD5
 		self.hostUserID = hostUserID
+		self.refs = []
+		self.tourneyHost = -1
+
 		self.gameMode = gameMode
 		self.matchScoringType = matchScoringTypes.SCORE	# default values
 		self.matchTeamType = matchTeamTypes.HEAD_TO_HEAD		# default value
@@ -126,7 +129,7 @@ class match:
 
 		# Other match data
 		struct.extend([
-			[self.hostUserID, dataTypes.SINT32],
+			[self.hostUserID if not self.isTourney else self.tourneyHost, dataTypes.SINT32],
 			[self.gameMode, dataTypes.BYTE],
 			[self.matchScoringType, dataTypes.BYTE],
 			[self.matchTeamType, dataTypes.BYTE],
@@ -155,7 +158,10 @@ class match:
 		if slotID is None or self.slots[slotID].user not in glob.tokens.tokens:
 			return False
 		token = glob.tokens.tokens[self.slots[slotID].user]
-		self.hostUserID = newHost
+		if self.isTourney:
+			self.tourneyHost = newHost
+		else:
+			self.hostUserID = newHost
 		token.enqueue(serverPackets.matchTransferHost())
 		self.sendUpdates()
 		log.info("MPROOM{}: {} is now the host".format(self.matchID, token.username))
@@ -166,9 +172,10 @@ class match:
 		Removes the host (for tourney matches)
 		:return:
 		"""
-		self.hostUserID = -1
-		self.sendUpdates()
-		log.info("MPROOM{}: Removed host".format(self.matchID))
+		if self.isTourney:
+			self.tourneyHost = -1
+			self.sendUpdates()
+			log.info("MPROOM{}: Removed host".format(self.matchID))
 
 	def setSlot(self, slotID, status = None, team = None, user = "", mods = None, loaded = None, skip = None, complete = None):
 		"""

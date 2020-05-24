@@ -275,6 +275,8 @@ def sendMessage(fro = "", to = "", message = "", token = None, toIRC = True):
 			fokaMessage = fokabot.fokabotResponse(token.username, to, message)
 			if fokaMessage:
 				sendMessage(glob.BOT_NAME, to if isChannel else fro, fokaMessage)
+			
+			return fokaMessage
 
 		# File and discord logs (public chat only)
 		if to.startswith("#") and not (message.startswith("\x01ACTION is playing") and to.startswith("#spect_")):
