@@ -77,10 +77,12 @@ def onlineUsers():
 
 	return packetHelper.buildPacket(packetIDs.server_userPresenceBundle, [[userIDs, dataTypes.INT_LIST]])
 
-
 """ Users packets """
-def userLogout(userID):
-	return packetHelper.buildPacket(packetIDs.server_userLogout, [[userID, dataTypes.SINT32], [0, dataTypes.BYTE]])
+def userLogout(userID, errorState = 0):
+	return packetHelper.buildPacket(packetIDs.server_userLogout, [
+		[userID, dataTypes.SINT32], 
+		[errorState, dataTypes.BYTE]
+	])
 
 def userPanel(userID, force = False):
 	# Connected and restricted check
@@ -99,12 +101,14 @@ def userPanel(userID, force = False):
 	# Get username color according to rank
 	# Only admins and normal users are currently supported
 	userRank = 0
-	if username == glob.BOT_NAME or userUtils.isInPrivilegeGroup(userID, "Chat Moderators") or userUtils.isInPrivilegeGroup(userID, "Replay moderator"):
+	if username == glob.BOT_NAME:
 		userRank |= userRanks.MOD
 	elif userUtils.isInPrivilegeGroup(userID, "Owner"):
 		userRank |= userRanks.PEPPY
 	elif userUtils.isInPrivilegeGroup(userID, "Developer") or userUtils.isInPrivilegeGroup(userID, "Community Manager"):
 		userRank |= userRanks.ADMIN
+	elif userUtils.isInPrivilegeGroup(userID, "Chat Moderators") or userUtils.isInPrivilegeGroup(userID, "Replay moderator"):
+		userRank |= userRanks.MOD
 	elif userUtils.isInPrivilegeGroup(userID, "BAT"):
 		userRank |= userRanks.BAT
 	elif (userToken.privileges & privileges.USER_DONOR) > 0:
@@ -191,7 +195,41 @@ def removeSpectator(userID):
 	return packetHelper.buildPacket(packetIDs.server_spectatorLeft, [[userID, dataTypes.SINT32]])
 
 def spectatorFrames(data):
-	return packetHelper.buildPacket(packetIDs.server_spectateFrames, [[data, dataTypes.BBYTES]])
+	build_data = [
+		[data["extra"], dataTypes.SINT32],
+		[data["count"], dataTypes.SINT16]
+	]
+	
+	for frame in data['frames']:
+		build_data.extend([
+			[frame['ButtonState'], dataTypes.BYTE],
+			[frame['Button'], dataTypes.BYTE],
+			[frame['MouseX'], dataTypes.FFLOAT],
+			[frame['MouseY'], dataTypes.FFLOAT],
+			[frame['Time'], dataTypes.SINT32]
+		])
+
+	build_data.extend([
+		[data['time'], dataTypes.SINT32],
+		[data["id"], dataTypes.BYTE],
+		[data["count300"], dataTypes.UINT16],
+		[data["count100"], dataTypes.UINT16],
+		[data["count50"], dataTypes.UINT16],
+		[data["countGeki"], dataTypes.UINT16],
+		[data["countKatu"], dataTypes.UINT16],
+		[data["countMiss"], dataTypes.UINT16],
+		[data["totalScore"], dataTypes.SINT32],
+		[data["maxCombo"], dataTypes.UINT16],
+		[data["currentCombo"], dataTypes.UINT16],
+		[data["perfect"], dataTypes.BYTE],
+		[data["currentHp"], dataTypes.BYTE],
+		[data["tagByte"], dataTypes.BYTE],
+		[data["usingScoreV2"], dataTypes.BYTE],
+		[data["comboPortion"], dataTypes.FFLOAT],
+		[data["bonusPortion"], dataTypes.FFLOAT]
+	])
+
+	return packetHelper.buildPacket(packetIDs.server_spectateFrames, build_data)
 
 def noSongSpectator(userID):
 	return packetHelper.buildPacket(packetIDs.server_spectatorCantSpectate, [[userID, dataTypes.SINT32]])
@@ -262,7 +300,25 @@ def allPlayersSkipped():
 	return packetHelper.buildPacket(packetIDs.server_matchSkip)
 
 def matchFrames(slotID, data):
-	return packetHelper.buildPacket(packetIDs.server_matchScoreUpdate, [[data[7:11], dataTypes.BBYTES], [slotID, dataTypes.BYTE], [data[12:], dataTypes.BBYTES]])
+	return packetHelper.buildPacket(packetIDs.server_matchScoreUpdate, [
+		[data['time'], dataTypes.SINT32],
+		[data["id"], dataTypes.BYTE],
+		[data["count300"], dataTypes.UINT16],
+		[data["count100"], dataTypes.UINT16],
+		[data["count50"], dataTypes.UINT16],
+		[data["countGeki"], dataTypes.UINT16],
+		[data["countKatu"], dataTypes.UINT16],
+		[data["countMiss"], dataTypes.UINT16],
+		[data["totalScore"], dataTypes.SINT32],
+		[data["maxCombo"], dataTypes.UINT16],
+		[data["currentCombo"], dataTypes.UINT16],
+		[data["perfect"], dataTypes.BYTE],
+		[data["currentHp"], dataTypes.BYTE],
+		[data["tagByte"], dataTypes.BYTE],
+		[data["usingScoreV2"], dataTypes.BYTE],
+		[data["comboPortion"], dataTypes.FFLOAT],
+		[data["bonusPortion"], dataTypes.FFLOAT]
+	])
 
 def matchComplete():
 	return packetHelper.buildPacket(packetIDs.server_matchComplete)
