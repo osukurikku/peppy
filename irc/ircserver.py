@@ -320,7 +320,7 @@ class Client:
 
 			# Make sure we are not connected to Bancho
 			token = glob.tokens.getTokenFromUsername(chat.fixUsernameForBancho(nick), True)
-			if token is not None:
+			if token is not None and not token.tournament:
 				self.reply("433 * {} :Nickname is already in use".format(nick))
 				return
 

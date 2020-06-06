@@ -74,7 +74,12 @@ def multiplayer(fro, chan, message):
         userID = userUtils.getID(fro)
         if can_user_touch_lobby(matchID, userID, True):
             userToken = glob.tokens.getTokenFromUsername(fro, ignoreIRC=True)
-            userToken.joinMatch(matchID)
+            if userToken and not userToken.tournament:
+                userToken.joinMatch(matchID)
+            else:
+                chat.joinChannel(token=userToken, channel="#multi_{}".format(matchID))
+                return "Attempting to join match #{} with tournament client!".format(matchID)
+
             return "Attempting to join match #{}!".format(matchID)
 
         return False

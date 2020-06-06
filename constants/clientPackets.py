@@ -64,19 +64,20 @@ def startSpectating(stream):
 def readSpectatorFrame(stream):
 	struct = [
 		["extra", dataTypes.SINT32],
-		["count", dataTypes.SINT16],
+		["count", dataTypes.UINT16],
 	]
 	firstData = packetHelper.readPacketData(stream, struct)
 
-	for i in range(0, firstData["count"]):
-		# okay now add to struct
-		struct.extend([
-			[f"____frames_{i}_ButtonState", dataTypes.BYTE],
-			[f"____frames_{i}_Button", dataTypes.BYTE],
-			[f"____frames_{i}_MouseX", dataTypes.FFLOAT],
-			[f"____frames_{i}_MouseY", dataTypes.FFLOAT],
-			[f"____frames_{i}_Time", dataTypes.SINT32]
-		])
+	if firstData["count"] > 0:
+		for i in range(0, firstData["count"]):
+			# okay now add to struct
+			struct.extend([
+				[f"____frames_{i}_ButtonState", dataTypes.BYTE],
+				[f"____frames_{i}_Button", dataTypes.BYTE],
+				[f"____frames_{i}_MouseX", dataTypes.FFLOAT],
+				[f"____frames_{i}_MouseY", dataTypes.FFLOAT],
+				[f"____frames_{i}_Time", dataTypes.SINT32]
+			])
 	
 	struct.extend([
 		["action", dataTypes.BYTE],
@@ -97,6 +98,7 @@ def readSpectatorFrame(stream):
 		["usingScoreV2", dataTypes.BYTE]
 	])
 
+	#print(struct)
 	partly = packetHelper.readPacketData(stream, struct)
 	if bool(partly['usingScoreV2']):
 		struct.extend([
@@ -221,19 +223,8 @@ def matchFrames(stream):
 		["tagByte", dataTypes.BYTE],
 		["usingScoreV2", dataTypes.BYTE]
 	]
-	partly = packetHelper.readPacketData(stream, struct)
-	if bool(partly['usingScoreV2']):
-		struct.extend([
-			["comboPortion", dataTypes.FFLOAT],
-			["bonusPortion", dataTypes.FFLOAT]
-		])
-	
-	data = packetHelper.readPacketData(stream, struct)
-	if not 'comboPortion' in data and not 'bonusPortion' in data:
-		data['comboPortion'] = 0
-		data['bonusPortion'] = 0
 
-	return data
+	return packetHelper.readPacketData(stream, struct)
 
 def tournamentMatchInfoRequest(stream):
 	return packetHelper.readPacketData(stream, [["matchID", dataTypes.UINT32]])

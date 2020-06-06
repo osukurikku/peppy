@@ -69,6 +69,8 @@ cpdef unpackData(bytes data, int dataType):
 		unpackType = "<s"
 	elif dataType == dataTypes.FFLOAT:
 		unpackType = "<f"
+	elif dataType == dataTypes.DOUBLE:
+		unpackType = "<d"
 	else:
 		unpackType = "<B"
 
@@ -127,11 +129,14 @@ cpdef bytes packData(__data, int dataType):
 		packType = "<s"
 	elif dataType == dataTypes.FFLOAT:
 		packType = "<f"
+	elif dataType == dataTypes.DOUBLE:
+		packType = "<d"
 	else:
 		packType = "<B"
 
 	# Pack if needed
 	if pack:
+		print(packType, __data)
 		data += struct.pack(packType, __data)
 
 	return data

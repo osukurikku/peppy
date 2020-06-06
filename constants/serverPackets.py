@@ -195,41 +195,44 @@ def removeSpectator(userID):
 	return packetHelper.buildPacket(packetIDs.server_spectatorLeft, [[userID, dataTypes.SINT32]])
 
 def spectatorFrames(data):
-	build_data = [
-		[data["extra"], dataTypes.SINT32],
-		[data["count"], dataTypes.SINT16]
-	]
+	# print(data)
+	# build_data = [
+	# 	[data["extra"], dataTypes.SINT32],
+	# 	[data["count"], dataTypes.UINT16]
+	# ]
 	
-	for frame in data['frames']:
-		build_data.extend([
-			[frame['ButtonState'], dataTypes.BYTE],
-			[frame['Button'], dataTypes.BYTE],
-			[frame['MouseX'], dataTypes.FFLOAT],
-			[frame['MouseY'], dataTypes.FFLOAT],
-			[frame['Time'], dataTypes.SINT32]
-		])
+	# if data["count"] > 0:
+	# 	for frame in data['frames']:
+	# 		build_data.extend([
+	# 			[frame['ButtonState'], dataTypes.BYTE],
+	# 			[frame['Button'], dataTypes.BYTE],
+	# 			[frame['MouseX'], dataTypes.DOUBLE],
+	# 			[frame['MouseY'], dataTypes.DOUBLE],
+	# 			[frame['Time'], dataTypes.SINT32]
+	# 		])
 
-	build_data.extend([
-		[data['time'], dataTypes.SINT32],
-		[data["id"], dataTypes.BYTE],
-		[data["count300"], dataTypes.UINT16],
-		[data["count100"], dataTypes.UINT16],
-		[data["count50"], dataTypes.UINT16],
-		[data["countGeki"], dataTypes.UINT16],
-		[data["countKatu"], dataTypes.UINT16],
-		[data["countMiss"], dataTypes.UINT16],
-		[data["totalScore"], dataTypes.SINT32],
-		[data["maxCombo"], dataTypes.UINT16],
-		[data["currentCombo"], dataTypes.UINT16],
-		[data["perfect"], dataTypes.BYTE],
-		[data["currentHp"], dataTypes.BYTE],
-		[data["tagByte"], dataTypes.BYTE],
-		[data["usingScoreV2"], dataTypes.BYTE],
-		[data["comboPortion"], dataTypes.FFLOAT],
-		[data["bonusPortion"], dataTypes.FFLOAT]
-	])
+	# build_data.extend([
+	# 	[data['action'], dataTypes.BYTE],
+	# 	[data['time'], dataTypes.SINT32],
+	# 	[data["id"], dataTypes.BYTE],
+	# 	[data["count300"], dataTypes.UINT16],
+	# 	[data["count100"], dataTypes.UINT16],
+	# 	[data["count50"], dataTypes.UINT16],
+	# 	[data["countGeki"], dataTypes.UINT16],
+	# 	[data["countKatu"], dataTypes.UINT16],
+	# 	[data["countMiss"], dataTypes.UINT16],
+	# 	[data["totalScore"], dataTypes.SINT32],
+	# 	[data["maxCombo"], dataTypes.UINT16],
+	# 	[data["currentCombo"], dataTypes.UINT16],
+	# 	[data["perfect"], dataTypes.BYTE],
+	# 	[data["currentHp"], dataTypes.BYTE],
+	# 	[data["tagByte"], dataTypes.BYTE],
+	# 	[data["usingScoreV2"], dataTypes.BYTE],
+	# 	[data["comboPortion"], dataTypes.FFLOAT],
+	# 	[data["bonusPortion"], dataTypes.FFLOAT]
+	# ])
 
-	return packetHelper.buildPacket(packetIDs.server_spectateFrames, build_data)
+	return packetHelper.buildPacket(packetIDs.server_spectateFrames, [[data, dataTypes.BBYTES]])
 
 def noSongSpectator(userID):
 	return packetHelper.buildPacket(packetIDs.server_spectatorCantSpectate, [[userID, dataTypes.SINT32]])
@@ -300,7 +303,7 @@ def allPlayersSkipped():
 	return packetHelper.buildPacket(packetIDs.server_matchSkip)
 
 def matchFrames(slotID, data):
-	return packetHelper.buildPacket(packetIDs.server_matchScoreUpdate, [
+	struct = [
 		[data['time'], dataTypes.SINT32],
 		[data["id"], dataTypes.BYTE],
 		[data["count300"], dataTypes.UINT16],
@@ -315,10 +318,9 @@ def matchFrames(slotID, data):
 		[data["perfect"], dataTypes.BYTE],
 		[data["currentHp"], dataTypes.BYTE],
 		[data["tagByte"], dataTypes.BYTE],
-		[data["usingScoreV2"], dataTypes.BYTE],
-		[data["comboPortion"], dataTypes.FFLOAT],
-		[data["bonusPortion"], dataTypes.FFLOAT]
-	])
+		[data["usingScoreV2"], dataTypes.BYTE]
+	]
+	return packetHelper.buildPacket(packetIDs.server_matchScoreUpdate, struct)
 
 def matchComplete():
 	return packetHelper.buildPacket(packetIDs.server_matchComplete)

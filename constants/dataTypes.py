@@ -10,3 +10,4 @@ STRING 	= 7
 FFLOAT	= 8		# because float is a keyword
 BBYTES 	= 9
 INT_LIST = 10	# TODO: Maybe there are some packets that still use uInt16 + uInt32 thing somewhere.
+DOUBLE = 11

@@ -32,9 +32,13 @@ class tokenList:
 		:param tournament: if True, flag this client as a tournement client. Default: True.
 		:return: token object
 		"""
+		userExists = glob.tokens.getTokenFromUserID(userID) #maybe user connected from irc or tournament, we can't increment in this way
+		
 		newToken = osuToken.token(userID, ip=ip, irc=irc, timeOffset=timeOffset, tournament=tournament)
 		self.tokens[newToken.token] = newToken
-		glob.redis.incr("ripple:online_users")
+		if not userExists:
+			glob.redis.incr("ripple:online_users")
+		
 		return newToken
 
 	def deleteToken(self, token):
