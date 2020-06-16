@@ -28,4 +28,4 @@ def handle(userToken, packetData):
 		match.updateHP(slotID, data["currentHp"])
 
 		# Enqueue frames to who's playing
-		glob.streams.broadcast(match.playingStreamName, serverPackets.matchFrames(slotID, data))
+		glob.streams.broadcast(match.playingStreamName, serverPackets.matchFrames(slotID, packetData))

@@ -266,24 +266,7 @@ def allPlayersSkipped():
 	return packetHelper.buildPacket(packetIDs.server_matchSkip)
 
 def matchFrames(slotID, data):
-	struct = [
-		[data['time'], dataTypes.SINT32],
-		[data["id"], dataTypes.BYTE],
-		[data["count300"], dataTypes.UINT16],
-		[data["count100"], dataTypes.UINT16],
-		[data["count50"], dataTypes.UINT16],
-		[data["countGeki"], dataTypes.UINT16],
-		[data["countKatu"], dataTypes.UINT16],
-		[data["countMiss"], dataTypes.UINT16],
-		[data["totalScore"], dataTypes.SINT32],
-		[data["maxCombo"], dataTypes.UINT16],
-		[data["currentCombo"], dataTypes.UINT16],
-		[data["perfect"], dataTypes.BYTE],
-		[data["currentHp"], dataTypes.BYTE],
-		[data["tagByte"], dataTypes.BYTE],
-		[data["usingScoreV2"], dataTypes.BYTE]
-	]
-	return packetHelper.buildPacket(packetIDs.server_matchScoreUpdate, struct)
+	return packetHelper.buildPacket(packetIDs.server_matchScoreUpdate, [[data[7:11], dataTypes.BBYTES], [slotID, dataTypes.BYTE], [data[12:], dataTypes.BBYTES]])
 
 def matchComplete():
 	return packetHelper.buildPacket(packetIDs.server_matchComplete)
