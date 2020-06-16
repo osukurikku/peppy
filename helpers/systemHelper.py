@@ -13,17 +13,6 @@ from constants import serverPackets
 from helpers import consoleHelper
 from objects import glob
 
-
-def dispose():
-	"""
-	Perform some clean up. Called on shutdown.
-	
-	:return:
-	"""
-	print("> Disposing server... ")
-	glob.fileBuffers.flushAll()
-	consoleHelper.printColored("Goodbye!", bcolors.GREEN)
-
 def runningUnderUnix():
 	"""
 	Get if the server is running under UNIX or NT
@@ -62,6 +51,17 @@ def scheduleShutdown(sendRestartTime, restart, message = "", delay=20):
 
 	# Schedule actual server shutdown/restart some seconds after server restart packet, so everyone gets it
 	threading.Timer(sendRestartTime+delay, action).start()
+
+def dispose():
+	"""
+	Perform some clean up. Called on shutdown.
+	
+	:return:
+	"""
+	scheduleShutdown(0, restart=False, delay=5)
+	print("> Disposing server... ")
+	glob.fileBuffers.flushAll()
+	consoleHelper.printColored("Goodbye!", bcolors.GREEN)
 
 def restartServer():
 	"""

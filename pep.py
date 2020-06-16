@@ -10,6 +10,7 @@ import tornado.web
 from raven.contrib.tornado import AsyncSentryClient
 import redis
 import time
+import signal
 
 from common import generalUtils
 from common.constants import bcolors
@@ -313,6 +314,11 @@ if __name__ == "__main__":
 			glob.redis.set("ripple:last_multi_id", 1)
 
 		glob.matches.lastID = int(lastMultiID.decode())
+
+		def sigterm_handler(signum, frame):
+			system.dispose()
+			
+		signal.signal(signal.SIGTERM, sigterm_handler)
 
 		# Connect to pubsub channels
 		pubSub.listener(glob.redis, {
