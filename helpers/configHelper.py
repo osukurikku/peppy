@@ -42,6 +42,7 @@ class config:
 			self.config.get("redis","database")
 			self.config.get("redis","password")
 
+			self.config.get("server","ip")
 			self.config.get("server","port")
 			self.config.get("server","threads")
 			self.config.get("server","gzip")
@@ -56,7 +57,7 @@ class config:
 			self.config.get("debug","time")
 
 			self.config.get("sentry","enable")
-			self.config.get("sentry","banchodns")
+			self.config.get("sentry","banchodsn")
 			self.config.get("sentry","ircdns")
 
 			self.config.get("discord","enable")
@@ -108,6 +109,7 @@ class config:
 		self.config.set("redis", "password", "")
 
 		self.config.add_section("server")
+		self.config.set("server", "ip", "127.0.0.1")
 		self.config.set("server", "port", "5001")
 		self.config.set("server", "threads", "16")
 		self.config.set("server", "gzip", "1")
@@ -125,7 +127,7 @@ class config:
 
 		self.config.add_section("sentry")
 		self.config.set("sentry", "enable", "0")
-		self.config.set("sentry", "banchodns", "")
+		self.config.set("sentry", "banchodsn", "")
 		self.config.set("sentry", "ircdns", "")
 
 		self.config.add_section("discord")

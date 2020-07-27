@@ -71,6 +71,7 @@ class match:
 		self.isStarting = False
 		self._lock = threading.Lock()
 		self.createTime = int(time.time())
+		self.vinseID = None
 		self.games = []
 
 		# Create all slots and reset them
@@ -450,9 +451,15 @@ class match:
 		# Console output
 		log.info("MPROOM{}: Match completed".format(self.matchID))
 
+		chanName = "#multi_{}".format(self.matchID)
+		if self.vinseID is None:
+			self.vinseID = (int(time.time()) // (60 * 15)) << 32 | self.matchID
+			chat.sendMessage(glob.BOT_NAME, chanName, "Match history available [{} here]".format(
+				"https://kurikku.pw/matches/{}".format(self.vinseID)
+			))
+
 		# If this is a tournament match, then we send a notification in the chat
 		# saying that the match has completed.
-		chanName = "#multi_{}".format(self.matchID)
 		if self.isTourney and (chanName in glob.channels.channels):
 			chat.sendMessage(glob.BOT_NAME, chanName, "Match has just finished.")
 

@@ -272,9 +272,9 @@ if __name__ == "__main__":
 						#datadogClient.periodicCheck("ram_file_locks", lambda: generalUtils.getTotalSize(glob.fLocks)),
 						#datadogClient.periodicCheck("ram_datadog", lambda: generalUtils.getTotalSize(glob.datadogClient)),
 						#datadogClient.periodicCheck("ram_verified_cache", lambda: generalUtils.getTotalSize(glob.verifiedCache)),
-						datadogClient.periodicCheck("ram_irc", lambda: generalUtils.getTotalSize(glob.ircServer)),
-						datadogClient.periodicCheck("ram_tornado", lambda: generalUtils.getTotalSize(glob.application)),
-						datadogClient.periodicCheck("ram_db", lambda: generalUtils.getTotalSize(glob.db)),
+						#datadogClient.periodicCheck("ram_irc", lambda: generalUtils.getTotalSize(glob.ircServer)),
+						#datadogClient.periodicCheck("ram_tornado", lambda: generalUtils.getTotalSize(glob.application)),
+						#datadogClient.periodicCheck("ram_db", lambda: generalUtils.getTotalSize(glob.db)),
 					])
 			else:
 				consoleHelper.printColored("[!] Warning! Datadog stats tracking is disabled!", bcolors.YELLOW)
@@ -333,7 +333,7 @@ if __name__ == "__main__":
 		}).start()
 
 		# Start tornado
-		glob.application.listen(serverPort)
+		glob.application.listen(serverPort, address=glob.conf.config["server"]["ip"])
 		tornado.ioloop.IOLoop.instance().start()
 	finally:
 		system.dispose()

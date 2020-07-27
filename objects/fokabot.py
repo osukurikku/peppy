@@ -64,8 +64,8 @@ def fokabotResponse(fro, chan, message):
 	if not cmd:
 		return False
 
-	if vals['privileges'] and userUtils.getPrivileges(userUtils.getID(fro)) & vals["privileges"] == 0 and fro != glob.BOT_NAME:
-		return False
+	if (vals['privileges'] and fro != glob.BOT_NAME) and (userUtils.getPrivileges(userUtils.getID(fro)) & vals["privileges"]) == 0:
+			return False
 
 	args = shlex.split(message.strip()[len(cmd):])
 	syntaxargs = shlex.split(vals['syntax'])

@@ -36,7 +36,7 @@ class tokenList:
 		
 		newToken = osuToken.token(userID, ip=ip, irc=irc, timeOffset=timeOffset, tournament=tournament)
 		self.tokens[newToken.token] = newToken
-		if not userExists:
+		if not tournament:
 			glob.redis.incr("ripple:online_users")
 		
 		return newToken
@@ -51,9 +51,10 @@ class tokenList:
 		if token in self.tokens:
 			if self.tokens[token].ip != "":
 				userUtils.deleteBanchoSessions(self.tokens[token].userID, self.tokens[token].ip)
+			if not self.tokens[token].tournament:
+				glob.redis.decr("ripple:online_users")			
 			t = self.tokens.pop(token)
-			del t
-			glob.redis.decr("ripple:online_users")
+			del t		
 
 	def getUserIDFromToken(self, token):
 		"""
