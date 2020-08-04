@@ -60,6 +60,9 @@ class match:
 		self.refs = []
 		self.tourneyHost = -1
 
+		self.stopWatchRunned = False
+		self.stopWatchForce = False
+
 		self.gameMode = gameMode
 		self.matchScoringType = matchScoringTypes.SCORE	# default values
 		self.matchTeamType = matchTeamTypes.HEAD_TO_HEAD		# default value

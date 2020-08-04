@@ -10,3 +10,5 @@ redistest.py
 .pyenv
 .idea/*
 *.imlfi
+pepDebug.py
+config.ini.debug

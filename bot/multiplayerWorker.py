@@ -190,7 +190,7 @@ def multiplayer(fro, chan, message):
         else:
             startTime = int(message[1])
 
-        force = False if len(message) < 3 else message[2].lower() == "force"
+        force = False if len(message) < 2 else message[1].lower() == "force"
         _match = glob.matches.matches[get_match_id_from_channel(chan)]
 
         # Force everyone to ready
@@ -214,6 +214,54 @@ def multiplayer(fro, chan, message):
             return "Match starts in {} seconds. The match has been locked. " \
                    "Please don't leave the match during the countdown " \
                    "or you might receive a penalty.".format(startTime)
+
+    def mp_timer():
+        matchID = get_match_id_from_channel(chan)
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(matchID, userID):
+            return False
+
+        if len(message) < 2 or not message[1].isdigit() or int(message[1]) < 1:
+            return "Wrong argument"
+        secondsWatch = int(message[1])
+
+        match = glob.matches.matches[matchID]
+        if match.stopWatchRunned:
+            chat.sendMessage(glob.BOT_NAME, chan, "You can't run another stopwatch, if you had another runned stopwatches.\nEnter !mp aborttimer to stop.")
+            return False
+
+        def _decreaseTimer(t):
+            if match.stopWatchForce:
+                chat.sendMessage(glob.BOT_NAME, chan, "Time is up!")
+                match.stopWatchForce = False
+                match.stopWatchRunned = False
+            elif t <= 0:
+                chat.sendMessage(glob.BOT_NAME, chan, "Time is up!")
+                match.stopWatchRunned = False
+            else:
+                if t % 10 == 0 or t <= 5:
+                    chat.sendMessage(glob.BOT_NAME, chan, "Timer ends in {} seconds.".format(t))
+                threading.Timer(1.00, _decreaseTimer, [t - 1]).start()
+    
+        match.stopWatchRunned = True
+        threading.Timer(1.00, _decreaseTimer, [secondsWatch - 1]).start()
+        return "Timer started!"
+
+    def mp_abort_timer():
+        matchID = get_match_id_from_channel(chan)
+        userID = userUtils.getID(fro)
+        if not can_user_touch_lobby(matchID, userID):
+            return False
+
+        match = glob.matches.matches[matchID]
+        if not match.stopWatchRunned:
+            return "Timer is not runned!"
+        
+        if match.stopWatchForce:
+            return "Another dude stopped timer!"
+        
+        match.stopWatchForce = True
+        return False
 
     def mp_invite():
         userID = userUtils.getID(fro)
@@ -504,7 +552,9 @@ def multiplayer(fro, chan, message):
             "scorev": mpScoreV,
             "settings": mp_settings,
             "addref": mp_addRef,
-            "removeref": mp_removeRef
+            "removeref": mp_removeRef,
+            "timer": mp_timer,
+            "aborttimer": mp_abort_timer
         }
         requestedSubcommand = message[0].lower().strip()
         if requestedSubcommand not in subcommands:
