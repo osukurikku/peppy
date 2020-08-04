@@ -60,8 +60,8 @@ class match:
 		self.refs = []
 		self.tourneyHost = -1
 
-		self.stopWatchRunned = False
-		self.stopWatchForce = False
+		self.timerRunned = False
+		self.timerForce = False
 
 		self.gameMode = gameMode
 		self.matchScoringType = matchScoringTypes.SCORE	# default values

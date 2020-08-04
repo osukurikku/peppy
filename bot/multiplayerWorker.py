@@ -226,24 +226,24 @@ def multiplayer(fro, chan, message):
         secondsWatch = int(message[1])
 
         match = glob.matches.matches[matchID]
-        if match.stopWatchRunned:
-            chat.sendMessage(glob.BOT_NAME, chan, "You can't run another stopwatch, if you had another runned stopwatches.\nEnter !mp aborttimer to stop.")
+        if match.timerRunned:
+            chat.sendMessage(glob.BOT_NAME, chan, "You can't run another timer, if you had another runned timer.\nEnter !mp aborttimer to stop.")
             return False
 
         def _decreaseTimer(t):
-            if match.stopWatchForce:
+            if match.timerForce:
                 chat.sendMessage(glob.BOT_NAME, chan, "Time is up!")
-                match.stopWatchForce = False
-                match.stopWatchRunned = False
+                match.timerForce = False
+                match.timerRunned = False
             elif t <= 0:
                 chat.sendMessage(glob.BOT_NAME, chan, "Time is up!")
-                match.stopWatchRunned = False
+                match.timerRunned = False
             else:
                 if t % 10 == 0 or t <= 5:
                     chat.sendMessage(glob.BOT_NAME, chan, "Timer ends in {} seconds.".format(t))
                 threading.Timer(1.00, _decreaseTimer, [t - 1]).start()
     
-        match.stopWatchRunned = True
+        match.timerRunned = True
         threading.Timer(1.00, _decreaseTimer, [secondsWatch - 1]).start()
         return "Timer started!"
 
@@ -254,13 +254,13 @@ def multiplayer(fro, chan, message):
             return False
 
         match = glob.matches.matches[matchID]
-        if not match.stopWatchRunned:
+        if not match.timerRunned:
             return "Timer is not runned!"
         
-        if match.stopWatchForce:
+        if match.timerForce:
             return "Another dude stopped timer!"
         
-        match.stopWatchForce = True
+        match.timerForce = True
         return False
 
     def mp_invite():
