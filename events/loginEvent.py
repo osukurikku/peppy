@@ -115,6 +115,9 @@ def handle(tornadoRequest):
 		if deltanow.days > 360:
 			raise exceptions.haxException()
 
+		if int(osuVersion[1:9]) < 20200811:
+			raise exceptions.haxException() # update when st flag was added (~August 2020) 
+
 		# Delete old tokens for that user and generate a new one
 		isTournament = "tourney" in osuVersion
 		if not isTournament:
