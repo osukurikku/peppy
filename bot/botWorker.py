@@ -315,6 +315,12 @@ def unban(fro, chan, message):
 
     # Set allowed to 1
     userUtils.unban(targetUserID)
+    requests.get(glob.conf.config["discord"]["krbot"] + "api/v1/submitBanOrRestrict", params={
+        'token': glob.conf.config["discord"]["krbotToken"],
+        'banned': target,
+        'type': 3,
+        'author': fro
+    })
 
     log.rap(userID, "has unbanned {}".format(target), True)
     return "Welcome back {}!".format(target)
@@ -366,6 +372,12 @@ def unrestrict(fro, chan, message):
 
     # Set allowed to 1
     userUtils.unrestrict(targetUserID)
+    requests.get(glob.conf.config["discord"]["krbot"] + "api/v1/submitBanOrRestrict", params={
+        'token': glob.conf.config["discord"]["krbotToken"],
+        'banned': target,
+        'type': 2,
+        'author': fro
+    })
 
     log.rap(userID, "has removed restricted mode from {}".format(target), True)
     return "Welcome back {}!".format(target)

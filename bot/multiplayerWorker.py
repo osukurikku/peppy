@@ -288,7 +288,7 @@ def multiplayer(fro, chan, message):
         userID = userUtils.getID(fro)
         if not can_user_touch_lobby(get_match_id_from_channel(chan), userID, True):
             return False
-        if len(message) < 2 or not message[1].isdigit() or (len(message) == 3 and not message[2].isdigit()):
+        if (len(message) < 2 or not message[1].isdigit()) or (len(message) == 3 and not message[2].isdigit()):
             raise exceptions.invalidArgumentsException("Wrong syntax: !mp map <beatmapid> [<gamemode>]")
         beatmapID = int(message[1])
         gameMode = int(message[2]) if len(message) == 3 else 0
@@ -387,7 +387,7 @@ def multiplayer(fro, chan, message):
         if not can_user_touch_lobby(get_match_id_from_channel(chan), userID, True):
             return False
         if len(message) < 2:
-            raise exceptions.invalidArgumentsException("Wrong syntax: !mp <mod1> [<mod2>] ...")
+            raise exceptions.invalidArgumentsException("Wrong syntax: !mp mods <mod1> [<mod2>] ...")
         _match = glob.matches.matches[get_match_id_from_channel(chan)]
         newMods = 0
         freeMod = False
@@ -402,7 +402,7 @@ def multiplayer(fro, chan, message):
                 newMods |= mods.FLASHLIGHT
             elif _mod.lower().strip() == "fi":
                 newMods |= mods.FADEIN
-            if _mod.lower().strip() == "none":
+            if _mod.lower().strip() == "none" or _mod.lower().strip() == "nomod":
                 newMods = 0
 
             if _mod.lower().strip() == "freemod":

@@ -23,7 +23,7 @@ def handle(userToken, packetData):
 
 	# Host check
 	with glob.matches.matches[matchID] as match:
-		if userToken.userID != match.hostUserID:
+		if userToken.userID != match.hostUserID or userToken.userID != match.tourneyHost:
 			return
 
 		# Some dank memes easter egg

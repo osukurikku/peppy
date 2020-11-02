@@ -62,9 +62,6 @@ def startSpectating(stream):
 
 """ Multiplayer packets """
 def matchSettings(stream):
-	# Data to return, will be merged later
-	data = []
-
 	# Some settings
 	struct = [
 		["matchID", dataTypes.UINT16],
